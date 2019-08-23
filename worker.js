@@ -1,4 +1,4 @@
-import {Vec3, Ray} from "./utils.js";
+import {Vec3, Ray, Sphere, HitList} from "./utils.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID;
@@ -13,25 +13,17 @@ function log(...msg) {
 function setup() {
 }
 
-function hitSphere(center, radius, r) {
-  const oc = r.origin.sub(center);
-  const a = r.direction.dot(r.direction);
-  const b = 2 * oc.dot(r.direction);
-  const c = oc.dot(oc) - radius * radius;
-  const discriminant = b * b - 4 * a * c;
-  return discriminant > 0;
-}
-
-function color(r) {
-  if (hitSphere(new Vec3(0, 0, -1), 0.5, r)) {
-    return new Vec3(1, 0, 0);
+function color(r, world) {
+  const h = world.hit(r, 0, Infinity);
+  if (h) {
+    return (new Vec3(h.normal.x + 1, h.normal.y + 1, h.normal.z + 1)).muls(0.5);
   }
 
   const unitDirection = r.direction.unit();
-  const t = 0.5 * (unitDirection.y + 1.0);
+  const f = 0.5 * (unitDirection.y + 1.0);
   const a = new Vec3(1, 1, 1);
   const b = new Vec3(0.5, 0.7, 1.0);
-  return a.muls(1.0 - t).add(b.muls(t));
+  return a.muls(1.0 - f).add(b.muls(f));
 }
 
 function render(data, info) {
@@ -39,6 +31,11 @@ function render(data, info) {
   const horizontal = new Vec3(4, 0, 0);
   const vertical = new Vec3(0, 2.25, 0);
   const origin = new Vec3(0, 0, 0);
+
+  const world = new HitList();
+
+  world.push(new Sphere(new Vec3(0, 0, -1), 0.5));
+  world.push(new Sphere(new Vec3(0, -100.5, -1), 100));
 
   let p = 0;
   for (let j = info.height - 1; j >= 0; --j) {
@@ -49,7 +46,7 @@ function render(data, info) {
       const r = new Ray(origin,
         lowerLeftCorner.add(horizontal.muls(u)).add(vertical.muls(v)));
 
-      const col = color(r);
+      const col = color(r, world);
 
       data[p++] = col.r * 255;
       data[p++] = col.g * 255;
