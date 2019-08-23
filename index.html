@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang=en>
+<head>
+<style>
+body {
+  background-color: #5B575A;
+}
+
+#c {
+  background-color: #000;
+  image-rendering: pixelated;
+  width: 960px;
+  height: 540px;
+  margin: 50px auto;
+  display: block;
+}
+</style>
+</head>
+<body>
+<canvas id=c></canvas>
+<script type='preload' src='worker.js'></script>
+<script type='preload' src='utils.js'></script>
+<script type='module'>
+  import {Vec3} from "./utils.js";
+  window.Vec3 = Vec3;
+  const wp = [];
+  const WIDTH = 1920/2;
+  const HEIGHT = 1080/2;
+  const THREADS = navigator.hardwareConcurrency;
+  const WORKSIZE = 100;
+
+  const ctx = document.getElementById("c").getContext("2d");
+  ctx.canvas.width = WIDTH;
+  ctx.canvas.height = HEIGHT;
+
+  const blocks = [];
+  for (let y = 0; y < HEIGHT; y += WORKSIZE) {
+    for (let x = 0; x < WIDTH; x += WORKSIZE) {
+      blocks.push({x: x, y: y, width: Math.min(WIDTH, x + WORKSIZE) - x,
+        height: Math.min(HEIGHT, y + WORKSIZE) - y});
+    }
+  }
+
+  blocks.sort((a, b) => {
+    let xa = (a.x + WORKSIZE/2 - WIDTH/2);
+    let ya = (a.y + WORKSIZE/2 - HEIGHT/2);
+    let xb = (b.x + WORKSIZE/2 - WIDTH/2);
+    let yb = (b.y + WORKSIZE/2 - HEIGHT/2);
+    const da = Math.sqrt(xa*xa + ya*ya);
+    const db = Math.sqrt(xb*xb + yb*yb);
+    return db - da;
+  });
+
+  for (let i = 0; i < THREADS; ++i) {
+    const worker = new Worker('worker.js', {type:"module"});
+    worker.addEventListener('message', onMessage);
+    wp.push(worker);
+    worker.postMessage({
+      type: 'init',
+      id: i, threads: THREADS,
+      width: WIDTH, height: HEIGHT});
+    postBlock(worker);
+  }
+
+  function postBlock(worker) {
+    if (blocks.length) {
+      worker.postMessage({
+        type: 'work',
+        info: blocks.pop()});
+    }
+  }
+
+  function onMessage(ev) {
+    postBlock(ev.target);
+    const info = ev.data;
+    const d = ctx.createImageData(info.width, info.height);
+    d.data.set(new Uint8ClampedArray(info.data));
+    ctx.putImageData(d, info.x, info.y);
+  };
+
+</script>
+</body>
+</html>
