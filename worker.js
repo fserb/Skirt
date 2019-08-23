@@ -3,18 +3,24 @@ import {Sphere, HitList, Camera,
   Lambertian, Metal, Dielectric} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
-let WIDTH, HEIGHT, THREADS, ID;
-let FIRST = true;
+let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
 
+let FIRST = true;
 // eslint-disable-next-line no-unused-vars
 self.log = function(...msg) {
   if (ID != 0 || !FIRST) return;
   self.console.log(...msg);
 };
 
+let _Rcount = -1;
+self.R = function() {
+  _Rcount = (_Rcount + 1) % RANDPOOL.length;
+  return RANDPOOL[_Rcount];
+};
+
 let world, camera;
 
-function setup() {
+function setup1() {
   world = new HitList();
 
   world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
@@ -38,6 +44,52 @@ function setup() {
     lookfrom, lookat,
     new Vec3(0, 1, 0),
     20, WIDTH / HEIGHT, 2.0, distToFocus);
+}
+
+function setup() {
+  world = new HitList();
+
+  world.push(new Sphere(new Vec3(0, -1000, 0), 1000,
+    new Lambertian(new Vec3(0.5, 0.5, 0.5))));
+
+  for (let a = -11; a < 11; ++a) {
+    for (let b = -11; b < 11; ++b) {
+      const mat = R();
+      const center = new Vec3(a + 0.9 * R(),
+        0.2, b + 0.9 * R());
+      if (center.sub(new Vec3(4, 0.2, 0)).len < 0.9) continue;
+
+      if (mat < 0.8) {
+        world.push(new Sphere(center, 0.2,
+          new Lambertian(new Vec3(
+            R() * R(),
+            R() * R(),
+            R() * R()))));
+      } else if (mat < 0.95) {
+        world.push(new Sphere(center, 0.2, new Metal(new Vec3(
+          0.5 * (1 + R()),
+          0.5 * (1 + R()),
+          0.5 * (1 + R())),
+          0.5 * R())));
+      } else {
+        world.push(new Sphere(center, 0.2, new Dielectric(1.5)));
+      }
+    }
+  }
+
+  world.push(new Sphere(new Vec3(0, 1, 0), 1, new Dielectric(1.5)));
+  world.push(new Sphere(new Vec3(-4, 1, 0), 1, new Lambertian(new Vec3(0.4, 0.2, 0.1))));
+  world.push(new Sphere(new Vec3(4, 1, 0), 1, new Metal(new Vec3(0.7, 0.6, 0.5), 0.0)));
+
+  const lookfrom = new Vec3(13, 2, 3);
+  const lookat = new Vec3(0, 0, -1);
+  const distToFocus = 10.0; //lookfrom.sub(lookat).len;
+  const aperture = 0.1;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    new Vec3(0, 1, 0),
+    20, WIDTH / HEIGHT, aperture, distToFocus);
 }
 
 function color(ray, world, depth) {
@@ -100,6 +152,7 @@ self.addEventListener('message', ev => {
     THREADS = ev.data.threads;
     WIDTH = ev.data.width;
     HEIGHT = ev.data.height;
+    RANDPOOL = ev.data.randpool;
     setup();
   } else if (ev.data.type == 'work') {
     work(ev.data);

@@ -48,6 +48,10 @@ const HEIGHT = 1080 / 2;
 const SAMPLING = 100;
 const THREADS = Math.max(1, navigator.hardwareConcurrency);
 const WORKSIZE = 50;
+const RANDPOOL = [];
+for (let i = 0 ; i < 10000; ++i) {
+  RANDPOOL.push(Math.random());
+}
 
 const ctx = document.getElementById("c").getContext("2d");
 ctx.canvas.width = WIDTH;
@@ -66,7 +70,7 @@ for (let y = 0; y < HEIGHT; y += WORKSIZE) {
       sampling: SAMPLING});
   }
 }
-const totalBlocks = blocks.length;
+const totalBlocks = blocks.length / 2;
 
 blocks.sort((a, b) => {
   if (a.sampling != b.sampling) return b.sampling - a.sampling;
@@ -132,6 +136,7 @@ for (let i = 0; i < THREADS; ++i) {
   worker.postMessage({
     type: 'init',
     id: i, threads: THREADS,
+    randpool: RANDPOOL,
     width: WIDTH, height: HEIGHT});
   postBlock(worker);
 }
