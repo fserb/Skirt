@@ -24,8 +24,9 @@ body {
 const wp = [];
 const WIDTH = 1920 / 2;
 const HEIGHT = 1080 / 2;
+const SAMPLING = 50;
 const THREADS = Math.max(1, navigator.hardwareConcurrency - 1);
-const WORKSIZE = 100;
+const WORKSIZE = 20;
 
 const ctx = document.getElementById("c").getContext("2d");
 ctx.canvas.width = WIDTH;
@@ -75,7 +76,8 @@ for (let i = 0; i < THREADS; ++i) {
   worker.postMessage({
     type: 'init',
     id: i, threads: THREADS,
-    width: WIDTH, height: HEIGHT});
+    width: WIDTH, height: HEIGHT,
+    sampling: SAMPLING});
   postBlock(worker);
 }
 
@@ -83,6 +85,7 @@ for (let i = 0; i < THREADS; ++i) {
 
 <script type='preload' src='worker.js'></script>
 <script type='preload' src='utils.js'></script>
+<script type='preload' src='raytracer.js'></script>
 
 </body>
 </html>

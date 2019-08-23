@@ -1,7 +1,8 @@
-import {Vec3, Ray, Sphere, HitList} from "./utils.js";
+import {Vec3, Ray} from "./utils.js";
+import {Sphere, HitList, Camera} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
-let WIDTH, HEIGHT, THREADS, ID;
+let WIDTH, HEIGHT, THREADS, ID, SAMPLING;
 let FIRST = true;
 
 // eslint-disable-next-line no-unused-vars
@@ -27,26 +28,28 @@ function color(r, world) {
 }
 
 function render(data, info) {
-  const lowerLeftCorner = new Vec3(-2, -1.125, -1);
-  const horizontal = new Vec3(4, 0, 0);
-  const vertical = new Vec3(0, 2.25, 0);
-  const origin = new Vec3(0, 0, 0);
-
   const world = new HitList();
-
   world.push(new Sphere(new Vec3(0, 0, -1), 0.5));
   world.push(new Sphere(new Vec3(0, -100.5, -1), 100));
+
+  const camera = new Camera();
 
   let p = 0;
   for (let j = info.height - 1; j >= 0; --j) {
     for (let i = 0; i < info.width; ++i) {
-      const u = (info.x + i) / WIDTH;
-      const v = (HEIGHT - (info.y + (info.height - j))) / HEIGHT;
+      let col = new Vec3(0, 0, 0);
 
-      const r = new Ray(origin,
-        lowerLeftCorner.add(horizontal.muls(u)).add(vertical.muls(v)));
+      for (let s = 0; s < SAMPLING; ++s) {
+        const x = info.x + i;
+        const y = HEIGHT - info.y - info.height + j;
+        const u = (x + Math.random()) / WIDTH;
+        const v = (y + Math.random()) / HEIGHT;
 
-      const col = color(r, world);
+        const r = camera.getRay(u, v);
+        col = col.add(color(r, world));
+      }
+
+      col = col.divs(SAMPLING);
 
       data[p++] = col.r * 255;
       data[p++] = col.g * 255;
@@ -72,6 +75,7 @@ self.addEventListener('message', ev => {
     THREADS = ev.data.threads;
     WIDTH = ev.data.width;
     HEIGHT = ev.data.height;
+    SAMPLING = ev.data.sampling;
     setup();
   } else if (ev.data.type == 'work') {
     work(ev.data);
