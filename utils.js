@@ -25,8 +25,8 @@ class Vec3 extends Array {
   dot(o) { return this[0] * o[0] + this[1] * o[1] + this[2] * o[2]; }
   cross(o) {
     return new Vec3(this[1] * o[2] - this[2] * o[1],
-      -(this[0]*o[2] - this[2]*e[0]),
-      this[0]*o[1] - this[1]*o[0]);
+      -(this[0] * o[2] - this[2] * o[0]),
+      this[0] * o[1] - this[1] * o[0]);
   }
 
   get len() {
@@ -34,10 +34,21 @@ class Vec3 extends Array {
   }
 
   get sqlen() {
-    return this[0]*this[0] + this[1]*this[1] + this[2]*this[2];
+    return this[0] * this[0] + this[1] * this[1] + this[2] * this[2];
   }
 
-  normalize() { return this.divs(this.len); }
+  unit() { return this.divs(this.len); }
 }
 
-export {Vec3};
+class Ray {
+  constructor(a, b) {
+    this.a = a;
+    this.b = b;
+  }
+  get origin() { return this.a; }
+  get direction() { return this.b; }
+
+  pointAt(t) { return this.a.add(this.b.muls(t)); }
+}
+
+export {Vec3, Ray};
