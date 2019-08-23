@@ -14,10 +14,20 @@ function log(...msg) {
 function setup() {
 }
 
+function randomInUnitSphere() {
+  let p;
+  do {
+    p = new Vec3(2 * Math.random() - 1,
+      2 * Math.random() - 1, 2 * Math.random() - 1);
+  } while (p.sqlen >= 1.0);
+  return p;
+}
+
 function color(r, world) {
-  const h = world.hit(r, 0, Infinity);
+  const h = world.hit(r, 0.001, Infinity);
   if (h) {
-    return (new Vec3(h.normal.x + 1, h.normal.y + 1, h.normal.z + 1)).muls(0.5);
+    const target = h.p.add(h.normal).add(randomInUnitSphere());
+    return color(new Ray(h.p, target.sub(h.p)), world).muls(0.5);
   }
 
   const unitDirection = r.direction.unit();
@@ -51,9 +61,9 @@ function render(data, info) {
 
       col = col.divs(SAMPLING);
 
-      data[p++] = col.r * 255;
-      data[p++] = col.g * 255;
-      data[p++] = col.b * 255;
+      data[p++] = Math.sqrt(col.r) * 255;
+      data[p++] = Math.sqrt(col.g) * 255;
+      data[p++] = Math.sqrt(col.b) * 255;
       data[p++] = 255;
     }
   }

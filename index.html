@@ -24,9 +24,9 @@ body {
 const wp = [];
 const WIDTH = 1920 / 2;
 const HEIGHT = 1080 / 2;
-const SAMPLING = 50;
+const SAMPLING = 100;
 const THREADS = Math.max(1, navigator.hardwareConcurrency - 1);
-const WORKSIZE = 20;
+const WORKSIZE = 50;
 
 const ctx = document.getElementById("c").getContext("2d");
 ctx.canvas.width = WIDTH;
