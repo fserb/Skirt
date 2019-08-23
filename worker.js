@@ -1,5 +1,5 @@
 import {Vec3, Ray} from "./utils.js";
-import {Sphere, HitList, Camera} from "./raytracer.js";
+import {Sphere, HitList, Camera, Lambertian, Metal} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, SAMPLING;
@@ -14,23 +14,18 @@ function log(...msg) {
 function setup() {
 }
 
-function randomInUnitSphere() {
-  let p;
-  do {
-    p = new Vec3(2 * Math.random() - 1,
-      2 * Math.random() - 1, 2 * Math.random() - 1);
-  } while (p.sqlen >= 1.0);
-  return p;
-}
-
-function color(r, world) {
-  const h = world.hit(r, 0.001, Infinity);
-  if (h) {
-    const target = h.p.add(h.normal).add(randomInUnitSphere());
-    return color(new Ray(h.p, target.sub(h.p)), world).muls(0.5);
+function color(ray, world, depth) {
+  const hit = world.hit(ray, 0.001, Infinity);
+  if (hit) {
+    const mathit = hit.material.scatter(ray, hit);
+    if (depth < 50 && mathit) {
+      return color(mathit.scattered, world, depth + 1).mul(mathit.attenuation);
+    } else {
+      return new Vec3(0, 0, 0);
+    }
   }
 
-  const unitDirection = r.direction.unit();
+  const unitDirection = ray.direction.unit();
   const f = 0.5 * (unitDirection.y + 1.0);
   const a = new Vec3(1, 1, 1);
   const b = new Vec3(0.5, 0.7, 1.0);
@@ -39,8 +34,14 @@ function color(r, world) {
 
 function render(data, info) {
   const world = new HitList();
-  world.push(new Sphere(new Vec3(0, 0, -1), 0.5));
-  world.push(new Sphere(new Vec3(0, -100.5, -1), 100));
+  world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
+    new Lambertian(new Vec3(0.8, 0.3, 0.3))));
+  world.push(new Sphere(new Vec3(0, -100.5, -1), 100,
+    new Lambertian(new Vec3(0.8, 0.8, 0.0))));
+  world.push(new Sphere(new Vec3(1, 0, -1), 0.5,
+    new Metal(new Vec3(0.8, 0.6, 0.2), 1.0)));
+  world.push(new Sphere(new Vec3(-1, 0, -1), 0.5,
+    new Metal(new Vec3(0.8, 0.8, 0.8), 0.3)));
 
   const camera = new Camera();
 
@@ -56,7 +57,7 @@ function render(data, info) {
         const v = (y + Math.random()) / HEIGHT;
 
         const r = camera.getRay(u, v);
-        col = col.add(color(r, world));
+        col = col.add(color(r, world, 0));
       }
 
       col = col.divs(SAMPLING);

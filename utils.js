@@ -29,6 +29,10 @@ class Vec3 extends Array {
       this[0] * o[1] - this[1] * o[0]);
   }
 
+  reflect(normal) {
+    return this.sub(normal.muls(this.dot(normal)*2));
+  }
+
   get len() {
     return Math.sqrt(this.sqlen);
   }
