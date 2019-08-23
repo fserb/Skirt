@@ -29,10 +29,6 @@ class Vec3 extends Array {
       this[0] * o[1] - this[1] * o[0]);
   }
 
-  reflect(normal) {
-    return this.sub(normal.muls(this.dot(normal)*2));
-  }
-
   get len() {
     return Math.sqrt(this.sqlen);
   }
@@ -42,6 +38,19 @@ class Vec3 extends Array {
   }
 
   unit() { return this.divs(this.len); }
+
+  reflect(normal) {
+    return this.sub(normal.muls(this.dot(normal) * 2));
+  }
+
+  refract(normal, niNt) {
+    const uv = this.unit();
+    const dt = uv.dot(normal);
+    const discriminant = 1.0 - niNt * niNt * (1 - dt * dt);
+    if (discriminant <= 0) return null;
+    return uv.sub(normal.muls(dt)).muls(niNt)
+      .sub(normal.muls(Math.sqrt(discriminant)));
+  }
 }
 
 class Ray {

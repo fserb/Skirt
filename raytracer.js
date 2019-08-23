@@ -60,6 +60,42 @@ class Metal {
   }
 }
 
+class Dielectric {
+  constructor(ri) {
+    this.ri = ri;
+  }
+
+  schlick(cosine, refIdx) {
+    let r0 = (1 - refIdx) / (1 + refIdx);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * Math.pow((1 - cosine), 5);
+  }
+
+  scatter(ray, record) {
+    const reflected = ray.direction.reflect(record.normal);
+    let outNormal, niNt, cosine;
+    if (ray.direction.dot(record.normal) > 0) {
+      outNormal = record.normal.muls(-1);
+      niNt = this.ri;
+      cosine = this.ri * ray.direction.dot(record.normal) / ray.direction.len;
+    } else {
+      outNormal = record.normal;
+      niNt = 1.0 / this.ri;
+      cosine = - this.ri * ray.direction.dot(record.normal) / ray.direction.len;
+    }
+    const refracted = ray.direction.refract(outNormal, niNt);
+    const reflectProb = refracted ? this.schlick(cosine, this.ri) : 1.0;
+
+    if (Math.random() < reflectProb) {
+      return { scattered: new Ray(record.p, reflected),
+        attenuation: new Vec3(1, 1, 1) };
+    }
+
+    return { scattered: new Ray(record.p, refracted),
+      attenuation: new Vec3(1, 1, 1) };
+  }
+}
+
 class Sphere {
   constructor(center, radius, material) {
     this.center = center;
@@ -106,4 +142,4 @@ class HitList extends Array {
   }
 }
 
-export {Sphere, HitList, Camera, Lambertian, Metal};
+export {Sphere, HitList, Camera, Lambertian, Metal, Dielectric};

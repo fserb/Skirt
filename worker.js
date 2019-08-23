@@ -1,5 +1,6 @@
 import {Vec3, Ray} from "./utils.js";
-import {Sphere, HitList, Camera, Lambertian, Metal} from "./raytracer.js";
+import {Sphere, HitList, Camera,
+  Lambertian, Metal, Dielectric} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, SAMPLING;
@@ -35,13 +36,17 @@ function color(ray, world, depth) {
 function render(data, info) {
   const world = new HitList();
   world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
-    new Lambertian(new Vec3(0.8, 0.3, 0.3))));
+    new Lambertian(new Vec3(0.1, 0.2, 0.5))));
   world.push(new Sphere(new Vec3(0, -100.5, -1), 100,
     new Lambertian(new Vec3(0.8, 0.8, 0.0))));
+
   world.push(new Sphere(new Vec3(1, 0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 1.0)));
+    new Metal(new Vec3(0.8, 0.6, 0.2), 0.2)));
+
   world.push(new Sphere(new Vec3(-1, 0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.8, 0.8), 0.3)));
+    new Dielectric(1.5)));
+  world.push(new Sphere(new Vec3(-1, 0, -1), -0.45,
+    new Dielectric(1.5)));
 
   const camera = new Camera();
 

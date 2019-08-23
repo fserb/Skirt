@@ -11,14 +11,35 @@ body {
   image-rendering: pixelated;
   width: 960px;
   height: 540px;
-  margin: 50px auto;
+  margin: 50px auto 0 auto;
   display: block;
+}
+
+#stat {
+  color: #000;
+  font-family: sans-serif;
+  width: 960px;
+  margin: 10px auto;
+}
+
+#progressbar {
+  height: 4px;
+  width: 960px;
+  margin: 0 auto;
+}
+#progress {
+  height: 4px;
+  width: 0px;
+  margin: 0;
+  background-color: #922;
 }
 </style>
 </head>
 <body>
 <canvas id=c></canvas>
+<div id=progressbar><div id=progress></div></div>
 <div id=stat></div>
+
 
 <script type='module'>
 const wp = [];
@@ -34,12 +55,14 @@ ctx.canvas.height = HEIGHT;
 
 const blocks = [];
 const outinfo = [];
+
 for (let y = 0; y < HEIGHT; y += WORKSIZE) {
   for (let x = 0; x < WIDTH; x += WORKSIZE) {
     blocks.push({x: x, y: y, width: Math.min(WIDTH, x + WORKSIZE) - x,
       height: Math.min(HEIGHT, y + WORKSIZE) - y});
   }
 }
+const totalBlocks = blocks.length;
 
 blocks.sort((a, b) => {
   const xa = (a.x + WORKSIZE / 2 - WIDTH / 2);
@@ -60,13 +83,40 @@ function postBlock(worker) {
   }
 }
 
+function stats() {
+  let area = 0;
+  let elapsed = 0.0;
+
+  for (let i = 0; i < outinfo.length; ++i) {
+    area += outinfo[i].area;
+    elapsed += (outinfo[i].endTime - outinfo[i].startTime) / 1000;
+  }
+
+  const speed = elapsed / area;
+  const estTotal = (speed * WIDTH * HEIGHT) / THREADS;
+
+  document.getElementById("stat").innerHTML =
+    "per pixel: " + Math.floor(speed * 1000 * 1000) / 1000 + "ms<br>" +
+    "estimated: " + Math.floor(estTotal * 10) / 10 + "s<br>";
+
+  if (outinfo.length < totalBlocks) {
+    document.getElementById("progress").style.width =
+      (960 * area / (WIDTH * HEIGHT)) + "px";
+  } else {
+    document.getElementById("progress").style.display = "none";
+  }
+}
+
 function onMessage(ev) {
   postBlock(ev.target);
   const info = ev.data;
-  outinfo.push({startTime: info.startTime, endTime: self.performance.now()});
+  outinfo.push({startTime: info.startTime, endTime: self.performance.now(),
+    area: info.width * info.height});
   const d = ctx.createImageData(info.width, info.height);
   d.data.set(new Uint8ClampedArray(info.data));
   ctx.putImageData(d, info.x, info.y);
+
+  stats();
 }
 
 for (let i = 0; i < THREADS; ++i) {
