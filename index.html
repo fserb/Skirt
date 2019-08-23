@@ -59,12 +59,17 @@ const outinfo = [];
 for (let y = 0; y < HEIGHT; y += WORKSIZE) {
   for (let x = 0; x < WIDTH; x += WORKSIZE) {
     blocks.push({x: x, y: y, width: Math.min(WIDTH, x + WORKSIZE) - x,
-      height: Math.min(HEIGHT, y + WORKSIZE) - y});
+      height: Math.min(HEIGHT, y + WORKSIZE) - y,
+      sampling: 0});
+    blocks.push({x: x, y: y, width: Math.min(WIDTH, x + WORKSIZE) - x,
+      height: Math.min(HEIGHT, y + WORKSIZE) - y,
+      sampling: SAMPLING});
   }
 }
 const totalBlocks = blocks.length;
 
 blocks.sort((a, b) => {
+  if (a.sampling != b.sampling) return b.sampling - a.sampling;
   const xa = (a.x + WORKSIZE / 2 - WIDTH / 2);
   const ya = (a.y + WORKSIZE / 2 - HEIGHT / 2);
   const xb = (b.x + WORKSIZE / 2 - WIDTH / 2);
@@ -110,13 +115,14 @@ function stats() {
 function onMessage(ev) {
   postBlock(ev.target);
   const info = ev.data;
-  outinfo.push({startTime: info.startTime, endTime: self.performance.now(),
-    area: info.width * info.height});
+  if (info.sampling != 0) {
+    outinfo.push({startTime: info.startTime, endTime: self.performance.now(),
+      area: info.width * info.height});
+    stats();
+  }
   const d = ctx.createImageData(info.width, info.height);
   d.data.set(new Uint8ClampedArray(info.data));
   ctx.putImageData(d, info.x, info.y);
-
-  stats();
 }
 
 for (let i = 0; i < THREADS; ++i) {
@@ -126,8 +132,7 @@ for (let i = 0; i < THREADS; ++i) {
   worker.postMessage({
     type: 'init',
     id: i, threads: THREADS,
-    width: WIDTH, height: HEIGHT,
-    sampling: SAMPLING});
+    width: WIDTH, height: HEIGHT});
   postBlock(worker);
 }
 

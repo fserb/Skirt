@@ -3,16 +3,41 @@ import {Sphere, HitList, Camera,
   Lambertian, Metal, Dielectric} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
-let WIDTH, HEIGHT, THREADS, ID, SAMPLING;
+let WIDTH, HEIGHT, THREADS, ID;
 let FIRST = true;
 
 // eslint-disable-next-line no-unused-vars
-function log(...msg) {
+self.log = function(...msg) {
   if (ID != 0 || !FIRST) return;
   self.console.log(...msg);
-}
+};
+
+let world, camera;
 
 function setup() {
+  world = new HitList();
+
+  world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
+    new Lambertian(new Vec3(0.1, 0.2, 0.5))));
+  world.push(new Sphere(new Vec3(0, -100.5, -1), 100,
+    new Lambertian(new Vec3(0.8, 0.8, 0.0))));
+
+  world.push(new Sphere(new Vec3(1, 0, -1), 0.5,
+    new Metal(new Vec3(0.8, 0.6, 0.2), 0.2)));
+
+  world.push(new Sphere(new Vec3(-1, 0, -1), 0.5,
+    new Dielectric(1.5)));
+  world.push(new Sphere(new Vec3(-1, 0, -1), -0.45,
+    new Dielectric(1.5)));
+
+  const lookfrom = new Vec3(3, 3, 2);
+  const lookat = new Vec3(0, 0, -1);
+  const distToFocus = lookfrom.sub(lookat).len;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    new Vec3(0, 1, 0),
+    20, WIDTH / HEIGHT, 2.0, distToFocus);
 }
 
 function color(ray, world, depth) {
@@ -34,38 +59,22 @@ function color(ray, world, depth) {
 }
 
 function render(data, info) {
-  const world = new HitList();
-  world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
-    new Lambertian(new Vec3(0.1, 0.2, 0.5))));
-  world.push(new Sphere(new Vec3(0, -100.5, -1), 100,
-    new Lambertian(new Vec3(0.8, 0.8, 0.0))));
-
-  world.push(new Sphere(new Vec3(1, 0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 0.2)));
-
-  world.push(new Sphere(new Vec3(-1, 0, -1), 0.5,
-    new Dielectric(1.5)));
-  world.push(new Sphere(new Vec3(-1, 0, -1), -0.45,
-    new Dielectric(1.5)));
-
-  const camera = new Camera();
+  const sampling = Math.max(1, info.sampling);
 
   let p = 0;
   for (let j = info.height - 1; j >= 0; --j) {
     for (let i = 0; i < info.width; ++i) {
       let col = new Vec3(0, 0, 0);
+      const x = info.x + i;
+      const y = HEIGHT - info.y - info.height + j;
 
-      for (let s = 0; s < SAMPLING; ++s) {
-        const x = info.x + i;
-        const y = HEIGHT - info.y - info.height + j;
+      for (let s = 0; s < sampling; ++s) {
         const u = (x + Math.random()) / WIDTH;
         const v = (y + Math.random()) / HEIGHT;
-
         const r = camera.getRay(u, v);
         col = col.add(color(r, world, 0));
       }
-
-      col = col.divs(SAMPLING);
+      col = col.divs(sampling);
 
       data[p++] = Math.sqrt(col.r) * 255;
       data[p++] = Math.sqrt(col.g) * 255;
@@ -91,7 +100,6 @@ self.addEventListener('message', ev => {
     THREADS = ev.data.threads;
     WIDTH = ev.data.width;
     HEIGHT = ev.data.height;
-    SAMPLING = ev.data.sampling;
     setup();
   } else if (ev.data.type == 'work') {
     work(ev.data);

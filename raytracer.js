@@ -1,33 +1,38 @@
-import {Vec3, Ray} from "./utils.js";
+import {Vec3, Ray,
+  randomInUnitSphere, randomInUnitDisk} from "./utils.js";
 
 class Camera {
-  constructor() {
-    this.lowerLeftCorner = new Vec3(-2, -1.125, -1);
-    this.horizontal = new Vec3(4, 0, 0);
-    this.vertical = new Vec3(0, 2.25, 0);
-    this.origin = new Vec3(0, 0, 0);
+  constructor(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
+    this.lensRadius = aperture / 2.0;
+    const theta = vfov * Math.PI / 180;
+    const halfHeight = Math.tan(theta / 2);
+    const halfWidth = aspect * halfHeight;
+
+    this.origin = lookfrom;
+    this.w = lookfrom.sub(lookat).unit();
+    this.u = vup.cross(this.w).unit();
+    this.v = this.w.cross(this.u);
+
+    this.lowerLeftCorner = this.origin
+      .sub(this.u.muls(halfWidth * focusDist))
+      .sub(this.v.muls(halfHeight * focusDist))
+      .sub(this.w.muls(focusDist));
+
+    this.horizontal = this.u.muls(2 * halfWidth * focusDist);
+    this.vertical = this.v.muls(2 * halfHeight * focusDist);
   }
 
   getRay(u, v) {
-    return new Ray(this.origin,
+    const rd = randomInUnitDisk().muls(this.lensRadius);
+    const offset = this.u.muls(rd.x).add(this.v.muls(rd.y));
+    return new Ray(this.origin.add(offset),
       this.lowerLeftCorner.add(this.horizontal.muls(u))
-        .add(this.vertical.muls(v)));
+        .add(this.vertical.muls(v)).sub(this.origin).sub(offset));
   }
 }
 
 // hitable: hit(r, minT, maxT) -> {t, p, normal, material}
 // material: scatter(r, {t, p, normal}, attenuation) -> scattered
-
-function randomInUnitSphere() {
-  let p;
-  do {
-    p = new Vec3(
-      2 * Math.random() - 1,
-      2 * Math.random() - 1,
-      2 * Math.random() - 1);
-  } while (p.sqlen >= 1.0);
-  return p;
-}
 
 class Lambertian {
   constructor(albedo) {

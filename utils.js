@@ -1,3 +1,4 @@
+
 class Vec3 extends Array {
   constructor(x, y, z) {
     super(3);
@@ -25,7 +26,7 @@ class Vec3 extends Array {
   dot(o) { return this[0] * o[0] + this[1] * o[1] + this[2] * o[2]; }
   cross(o) {
     return new Vec3(this[1] * o[2] - this[2] * o[1],
-      -(this[0] * o[2] - this[2] * o[0]),
+      this[2] * o[0] - this[0] * o[2],
       this[0] * o[1] - this[1] * o[0]);
   }
 
@@ -64,4 +65,26 @@ class Ray {
   pointAt(t) { return this.a.add(this.b.muls(t)); }
 }
 
-export {Vec3, Ray};
+function randomInUnitSphere() {
+  let p;
+  do {
+    p = new Vec3(
+      2 * Math.random() - 1,
+      2 * Math.random() - 1,
+      2 * Math.random() - 1);
+  } while (p.sqlen >= 1.0);
+  return p;
+}
+
+function randomInUnitDisk() {
+  let p;
+  do {
+    p = new Vec3(
+      2 * Math.random() - 1,
+      2 * Math.random() - 1,
+      0);
+  } while (p.sqlen >= 1.0);
+  return p;
+}
+
+export {Vec3, Ray, randomInUnitSphere, randomInUnitDisk};
