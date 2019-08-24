@@ -1,4 +1,4 @@
-import {Vec3, Ray,
+import {v3, Ray,
   randomInUnitSphere, randomInUnitDisk} from "./utils.js";
 
 class Camera {
@@ -9,25 +9,32 @@ class Camera {
     const halfWidth = aspect * halfHeight;
 
     this.origin = lookfrom;
-    this.w = lookfrom.sub(lookat).unit();
-    this.u = vup.cross(this.w).unit();
-    this.v = this.w.cross(this.u);
+    this.w = v3.unit(v3.sub(lookfrom, lookat));
+    this.u = v3.unit(v3.cross(vup, this.w));
+    this.v = v3.cross(this.w, this.u);
 
-    this.lowerLeftCorner = this.origin
-      .sub(this.u.muls(halfWidth * focusDist))
-      .sub(this.v.muls(halfHeight * focusDist))
-      .sub(this.w.muls(focusDist));
+    this.lowerLeftCorner =
+      v3.sub(this.origin,
+        v3.add(v3.add(
+          v3.mul(this.u, halfWidth * focusDist),
+          v3.mul(this.v, halfHeight * focusDist)),
+        v3.mul(this.w, focusDist)));
 
-    this.horizontal = this.u.muls(2 * halfWidth * focusDist);
-    this.vertical = this.v.muls(2 * halfHeight * focusDist);
+    this.horizontal = v3.mul(this.u, 2 * halfWidth * focusDist);
+    this.vertical = v3.mul(this.v, 2 * halfHeight * focusDist);
   }
 
   getRay(u, v) {
-    const rd = randomInUnitDisk().muls(this.lensRadius);
-    const offset = this.u.muls(rd.x).add(this.v.muls(rd.y));
-    return new Ray(this.origin.add(offset),
-      this.lowerLeftCorner.add(this.horizontal.muls(u))
-        .add(this.vertical.muls(v)).sub(this.origin).sub(offset));
+    const rd = v3.mul(randomInUnitDisk(), this.lensRadius);
+    const offset = v3.add(v3.mul(this.u, rd.x), v3.mul(this.v, rd.y));
+
+    return new Ray(v3.add(this.origin, offset),
+      v3.sub(
+        v3.add(this.lowerLeftCorner,
+          v3.add(
+            v3.mul(this.horizontal, u),
+            v3.mul(this.vertical, v))),
+        v3.add(this.origin, offset)));
   }
 }
 
@@ -40,9 +47,11 @@ class Lambertian {
   }
 
   scatter(ray, record) {
-    const target = record.p.add(record.normal).add(randomInUnitSphere());
+    const target = v3.add(
+      v3.add(record.p, record.normal),
+      randomInUnitSphere());
     return {
-      scattered: new Ray(record.p, target.sub(record.p)),
+      scattered: new Ray(record.p, v3.sub(target, record.p)),
       attenuation: this.albedo};
   }
 }
@@ -54,10 +63,12 @@ class Metal {
   }
 
   scatter(ray, record) {
-    const reflected = ray.direction.unit().reflect(record.normal);
+    const reflected = v3.reflect(v3.unit(ray.direction), record.normal);
+
     const scattered = new Ray(record.p,
-      reflected.add(randomInUnitSphere().muls(this.fuzz)));
-    if (scattered.direction.dot(record.normal) > 0) {
+      v3.add(reflected, v3.mul(randomInUnitSphere(), this.fuzz)));
+
+    if (v3.dot(scattered.direction, record.normal) > 0) {
       return { scattered: scattered, attenuation: this.albedo };
     } else {
       return null;
@@ -77,27 +88,29 @@ class Dielectric {
   }
 
   scatter(ray, record) {
-    const reflected = ray.direction.reflect(record.normal);
+    const reflected = v3.reflect(ray.direction, record.normal);
     let outNormal, niNt, cosine;
-    if (ray.direction.dot(record.normal) > 0) {
-      outNormal = record.normal.muls(-1);
+    if (v3.dot(ray.direction, record.normal) > 0) {
+      outNormal = v3.mul(-1, record.normal);
       niNt = this.ri;
-      cosine = this.ri * ray.direction.dot(record.normal) / ray.direction.len;
+      cosine = this.ri *
+        v3.dot(ray.direction, record.normal) / ray.direction.len;
     } else {
       outNormal = record.normal;
       niNt = 1.0 / this.ri;
-      cosine = - this.ri * ray.direction.dot(record.normal) / ray.direction.len;
+      cosine = - this.ri *
+        v3.dot(ray.direction, record.normal) / ray.direction.len;
     }
-    const refracted = ray.direction.refract(outNormal, niNt);
+    const refracted = v3.refract(ray.direction, outNormal, niNt);
     const reflectProb = refracted ? this.schlick(cosine, this.ri) : 1.0;
 
     if (Math.random() < reflectProb) {
       return { scattered: new Ray(record.p, reflected),
-        attenuation: new Vec3(1, 1, 1) };
+        attenuation: v3.new(1, 1, 1) };
     }
 
     return { scattered: new Ray(record.p, refracted),
-      attenuation: new Vec3(1, 1, 1) };
+      attenuation: v3.new(1, 1, 1) };
   }
 }
 
@@ -109,22 +122,24 @@ class Sphere {
   }
 
   hit(r, minT, maxT) {
-    const oc = r.origin.sub(this.center);
-    const a = r.direction.dot(r.direction);
-    const b = oc.dot(r.direction);
-    const c = oc.dot(oc) - this.radius * this.radius;
+    const oc = v3.sub(r.origin, this.center);
+    const a = v3.dot(r.direction, r.direction);
+    const b = v3.dot(oc, r.direction);
+    const c = v3.dot(oc, oc) - this.radius * this.radius;
     const delta = b * b - a * c;
     if (delta > 0) {
       let t = (-b - Math.sqrt(delta)) / a;
       if (t < maxT && t > minT) {
         const p = r.pointAt(t);
-        return { t: t, p: p, normal: p.sub(this.center).divs(this.radius),
+        return { t: t, p: p,
+          normal: v3.div(v3.sub(p, this.center), this.radius),
           material: this.material };
       }
       t = (-b + Math.sqrt(delta)) / a;
       if (t < maxT && t > minT) {
         const p = r.pointAt(t);
-        return { t: t, p: p, normal: p.sub(this.center).divs(this.radius),
+        return { t: t, p: p,
+          normal: v3.div(v3.sub(p, this.center), this.radius),
           material: this.material };
       }
     }

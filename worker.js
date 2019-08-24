@@ -1,4 +1,4 @@
-import {Vec3, Ray} from "./utils.js";
+import {v3} from "./utils.js";
 import {Sphere, HitList, Camera,
   Lambertian, Metal, Dielectric} from "./raytracer.js";
 
@@ -13,82 +13,84 @@ self.log = function(...msg) {
 };
 
 let _Rcount = -1;
-self.R = function() {
+function R() {
   _Rcount = (_Rcount + 1) % RANDPOOL.length;
   return RANDPOOL[_Rcount];
-};
+}
 
 let world, camera;
-
-function setup1() {
-  world = new HitList();
-
-  world.push(new Sphere(new Vec3(0, 0, -1), 0.5,
-    new Lambertian(new Vec3(0.1, 0.2, 0.5))));
-  world.push(new Sphere(new Vec3(0, -100.5, -1), 100,
-    new Lambertian(new Vec3(0.8, 0.8, 0.0))));
-
-  world.push(new Sphere(new Vec3(1, 0, -1), 0.5,
-    new Metal(new Vec3(0.8, 0.6, 0.2), 0.2)));
-
-  world.push(new Sphere(new Vec3(-1, 0, -1), 0.5,
-    new Dielectric(1.5)));
-  world.push(new Sphere(new Vec3(-1, 0, -1), -0.45,
-    new Dielectric(1.5)));
-
-  const lookfrom = new Vec3(3, 3, 2);
-  const lookat = new Vec3(0, 0, -1);
-  const distToFocus = lookfrom.sub(lookat).len;
-
-  camera = new Camera(
-    lookfrom, lookat,
-    new Vec3(0, 1, 0),
-    20, WIDTH / HEIGHT, 2.0, distToFocus);
-}
 
 function setup() {
   world = new HitList();
 
-  world.push(new Sphere(new Vec3(0, -1000, 0), 1000,
-    new Lambertian(new Vec3(0.5, 0.5, 0.5))));
+  world.push(new Sphere(v3.new(0, 0, -1), 0.5,
+    new Lambertian(v3.new(0.1, 0.2, 0.5))));
+  world.push(new Sphere(v3.new(0, -100.5, -1), 100,
+    new Lambertian(v3.new(0.8, 0.8, 0.0))));
+
+  world.push(new Sphere(v3.new(1, 0, -1), 0.5,
+    new Metal(v3.new(0.8, 0.6, 0.2), 0.2)));
+
+  world.push(new Sphere(v3.new(-1, 0, -1), 0.5,
+    new Dielectric(1.5)));
+  world.push(new Sphere(v3.new(-1, 0, -1), -0.45,
+    new Dielectric(1.5)));
+
+  const lookfrom = v3.new(3, 3, 2);
+  const lookat = v3.new(0, 0, -1);
+  const distToFocus = v3.sub(lookfrom, lookat).len;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    v3.new(0, 1, 0),
+    20, WIDTH / HEIGHT, 2.0, distToFocus);
+}
+
+function _setup1() {
+  world = new HitList();
+
+  world.push(new Sphere(v3.new(0, -1000, 0), 1000,
+    new Lambertian(v3.new(0.5, 0.5, 0.5))));
 
   for (let a = -11; a < 11; ++a) {
     for (let b = -11; b < 11; ++b) {
       const mat = R();
-      const center = new Vec3(a + 0.9 * R(),
+      const center = v3.new(a + 0.9 * R(),
         0.2, b + 0.9 * R());
-      if (center.sub(new Vec3(4, 0.2, 0)).len < 0.9) continue;
+      if (v3.sub(center, v3.new(4, 0.2, 0)).len < 0.9) continue;
 
       if (mat < 0.8) {
         world.push(new Sphere(center, 0.2,
-          new Lambertian(new Vec3(
+          new Lambertian(v3.new(
             R() * R(),
             R() * R(),
             R() * R()))));
       } else if (mat < 0.95) {
-        world.push(new Sphere(center, 0.2, new Metal(new Vec3(
+        world.push(new Sphere(center, 0.2, new Metal(v3.new(
           0.5 * (1 + R()),
           0.5 * (1 + R()),
           0.5 * (1 + R())),
-          0.5 * R())));
+        0.5 * R())));
       } else {
         world.push(new Sphere(center, 0.2, new Dielectric(1.5)));
       }
     }
   }
 
-  world.push(new Sphere(new Vec3(0, 1, 0), 1, new Dielectric(1.5)));
-  world.push(new Sphere(new Vec3(-4, 1, 0), 1, new Lambertian(new Vec3(0.4, 0.2, 0.1))));
-  world.push(new Sphere(new Vec3(4, 1, 0), 1, new Metal(new Vec3(0.7, 0.6, 0.5), 0.0)));
+  world.push(new Sphere(v3.new(0, 1, 0), 1, new Dielectric(1.5)));
+  world.push(new Sphere(v3.new(-4, 1, 0), 1,
+    new Lambertian(v3.new(0.4, 0.2, 0.1))));
+  world.push(new Sphere(v3.new(4, 1, 0), 1,
+    new Metal(v3.new(0.7, 0.6, 0.5), 0.0)));
 
-  const lookfrom = new Vec3(13, 2, 3);
-  const lookat = new Vec3(0, 0, -1);
+  const lookfrom = v3.new(13, 2, 3);
+  const lookat = v3.new(0, 0, -1);
   const distToFocus = 10.0; //lookfrom.sub(lookat).len;
   const aperture = 0.1;
 
   camera = new Camera(
     lookfrom, lookat,
-    new Vec3(0, 1, 0),
+    v3.new(0, 1, 0),
     20, WIDTH / HEIGHT, aperture, distToFocus);
 }
 
@@ -97,17 +99,18 @@ function color(ray, world, depth) {
   if (hit) {
     const mathit = hit.material.scatter(ray, hit);
     if (depth < 50 && mathit) {
-      return color(mathit.scattered, world, depth + 1).mul(mathit.attenuation);
+      return v3.mul(color(mathit.scattered, world, depth + 1),
+        mathit.attenuation);
     } else {
-      return new Vec3(0, 0, 0);
+      return v3.new(0, 0, 0);
     }
   }
 
-  const unitDirection = ray.direction.unit();
+  const unitDirection = v3.unit(ray.direction);
   const f = 0.5 * (unitDirection.y + 1.0);
-  const a = new Vec3(1, 1, 1);
-  const b = new Vec3(0.5, 0.7, 1.0);
-  return a.muls(1.0 - f).add(b.muls(f));
+  const a = v3.new(1, 1, 1);
+  const b = v3.new(0.5, 0.7, 1.0);
+  return v3.add(v3.mul(1.0 - f, a), v3.mul(f, b));
 }
 
 function render(data, info) {
@@ -116,7 +119,7 @@ function render(data, info) {
   let p = 0;
   for (let j = info.height - 1; j >= 0; --j) {
     for (let i = 0; i < info.width; ++i) {
-      let col = new Vec3(0, 0, 0);
+      let col = v3.new(0, 0, 0);
       const x = info.x + i;
       const y = HEIGHT - info.y - info.height + j;
 
@@ -124,9 +127,9 @@ function render(data, info) {
         const u = (x + Math.random()) / WIDTH;
         const v = (y + Math.random()) / HEIGHT;
         const r = camera.getRay(u, v);
-        col = col.add(color(r, world, 0));
+        col = v3.add(col, color(r, world, 0));
       }
-      col = col.divs(sampling);
+      col = v3.div(col, sampling);
 
       data[p++] = Math.sqrt(col.r) * 255;
       data[p++] = Math.sqrt(col.g) * 255;
