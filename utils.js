@@ -98,10 +98,9 @@ function randomInUnitSphere() {
 }
 
 function randomInUnitDisk() {
-  const p = v3.mul(
-    v3.unit(v3.new(Math.random(), Math.random(), 0)),
-    Math.sqrt(Math.random()));
-  return v3.new(2 * p.x - 1, 2 * p.y - 1, 0);
+  const r = Math.sqrt(Math.random());
+  const t = Math.random() * 2 * Math.PI;
+  return v3.new(r * Math.cos(t), r * Math.sin(t));
 }
 
 export {v3, Ray, randomInUnitSphere, randomInUnitDisk};
