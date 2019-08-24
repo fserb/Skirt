@@ -1,6 +1,23 @@
 import {v3, Ray,
   randomInUnitSphere, randomInUnitDisk} from "./utils.js";
 
+class AABB {
+  constructor(a, b) { this.min = a; this.max = b; }
+
+  hit(r, tmin, tmax) {
+    for (let a = 0; a < 3; ++a) {
+      const invD = 1.0 / r.direction[a];
+      let t0 = (this.min[a] - r.origin[a]) * invD;
+      let t1 = (this.max[a] - r.origin[a]) * invD;
+      if (invD < 0) { const tmp = t0; t0 = t1; t1 = tmp; }
+      tmin = t0 > tmin ? t0 : tmin;
+      tmax = t1 < tmax ? t1 : tmax;
+      if (tmax <= tmin) return false;
+    }
+    return true;
+  }
+}
+
 class Camera {
   constructor(lookfrom, lookat, vup, vfov, aspect, aperture, focusDist) {
     this.lensRadius = aperture / 2.0;
@@ -38,7 +55,9 @@ class Camera {
   }
 }
 
-// hitable: hit(r, minT, maxT) -> {t, p, normal, material}
+// hitable:
+//   hit(r, minT, maxT) -> {t, p, normal, material}
+//   bbox() -> AABB
 // material: scatter(r, {t, p, normal}, attenuation) -> scattered
 
 class Lambertian {
@@ -145,6 +164,11 @@ class Sphere {
     }
     return null;
   }
+
+  bbox() {
+    return new AABB(v3.sub(this.center, this.radius),
+      v3.add(this.center, this.radius));
+  }
 }
 
 class HitList extends Array {
@@ -160,6 +184,63 @@ class HitList extends Array {
     }
     return bestHit;
   }
+
+  bbox() {
+    if (this.length == 0) return null;
+    let ret = null;
+    for (let i = 0; i < this.length; ++i) {
+      const a = this[i].bbox();
+      if (a == null) continue;
+      if (ret == null) { ret = a; continue; }
+      ret = new AABB(v3.min(a.min, ret.min), v3.max(a.max, ret.max));
+    }
+    return ret;
+  }
 }
 
-export {Sphere, HitList, Camera, Lambertian, Metal, Dielectric};
+class BVH {
+  constructor(objs) {
+    const axis = Math.floor(3 * Math.random());
+    objs.sort((a, b) => {
+      const bba = a.bbox();
+      const bbb = b.bbox();
+      return bba.min[axis] - bbb.min[axis];
+    });
+    if (objs.length == 1) {
+      this.left = this.right = objs[0];
+    } else if (objs.length == 2) {
+      this.left = objs[0];
+      this.right = objs[1];
+    } else {
+      this.left = new BVH(objs.slice(0, objs.length / 2));
+      this.right = new BVH(objs.slice(objs.length / 2));
+    }
+
+    const bbleft = this.left.bbox();
+    const bbright = this.right.bbox();
+
+    this.box = new AABB(v3.min(bbleft.min, bbright.min),
+      v3.max(bbleft.max, bbright.max));
+  }
+
+  hit(r, tmin, tmax) {
+    if (this.box.hit(r, tmin, tmax)) {
+      const leftRec = this.left.hit(r, tmin, tmax);
+      const rightRec = this.right.hit(r, tmin, tmax);
+      if (leftRec && rightRec) {
+        return (leftRec.t < rightRec.t) ? leftRec : rightRec;
+      } else if (leftRec) {
+        return leftRec;
+      } else if (rightRec) {
+        return rightRec;
+      }
+    }
+    return null;
+  }
+
+  bbox() {
+    return this.box;
+  }
+}
+
+export {BVH, Sphere, HitList, Camera, Lambertian, Metal, Dielectric};

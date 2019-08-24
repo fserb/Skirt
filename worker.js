@@ -1,5 +1,5 @@
 import {v3} from "./utils.js";
-import {Sphere, HitList, Camera,
+import {BVH, Sphere, HitList, Camera,
   Lambertian, Metal, Dielectric} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
@@ -20,7 +20,7 @@ function R() {
 
 let world, camera;
 
-function setup() {
+function _1setup() {
   world = new HitList();
 
   world.push(new Sphere(v3.new(0, 0, -1), 0.5,
@@ -46,7 +46,7 @@ function setup() {
     20, WIDTH / HEIGHT, 2.0, distToFocus);
 }
 
-function _setup1() {
+function setup() {
   world = new HitList();
 
   world.push(new Sphere(v3.new(0, -1000, 0), 1000,
@@ -82,6 +82,8 @@ function _setup1() {
     new Lambertian(v3.new(0.4, 0.2, 0.1))));
   world.push(new Sphere(v3.new(4, 1, 0), 1,
     new Metal(v3.new(0.7, 0.6, 0.5), 0.0)));
+
+  world = new BVH(world);
 
   const lookfrom = v3.new(13, 2, 3);
   const lookat = v3.new(0, 0, -1);
