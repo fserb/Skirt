@@ -55,9 +55,27 @@ class Camera {
   }
 }
 
-// hitable:
-//   hit(r, minT, maxT) -> {t, p, normal, material}
-//   bbox() -> AABB
+// texture: value(u, v, p) -> vec3
+
+class ConstantTexture {
+  constructor(r, g, b) { this.color = v3.new(r, g, b); }
+  value(_u, _v, _p) {
+    return this.color;
+  }
+}
+
+class CheckerTexture {
+  constructor(a, b) { this.even = a; this.odd = b; }
+  value(u, v, p) {
+    const sines = Math.sin(10 * p.x) * Math.sin(10 * p.y) * Math.sin(10 * p.z);
+    if (sines < 0) {
+      return this.odd.value(u, v, p);
+    } else {
+      return this.even.value(u, v, p);
+    }
+  }
+}
+
 // material: scatter(r, {t, p, normal}, attenuation) -> scattered
 
 class Lambertian {
@@ -71,7 +89,7 @@ class Lambertian {
       randomInUnitSphere());
     return {
       scattered: new Ray(record.p, v3.sub(target, record.p)),
-      attenuation: this.albedo};
+      attenuation: this.albedo.value(0, 0, record.p) };
   }
 }
 
@@ -88,7 +106,8 @@ class Metal {
       v3.add(reflected, v3.mul(randomInUnitSphere(), this.fuzz)));
 
     if (v3.dot(scattered.direction, record.normal) > 0) {
-      return { scattered: scattered, attenuation: this.albedo };
+      return { scattered: scattered,
+        attenuation: this.albedo.value(0, 0, record.p) };
     } else {
       return null;
     }
@@ -132,6 +151,10 @@ class Dielectric {
       attenuation: v3.new(1, 1, 1) };
   }
 }
+
+// hitable:
+//   hit(r, minT, maxT) -> {t, p, normal, material}
+//   bbox() -> AABB
 
 class Sphere {
   constructor(center, radius, material) {
@@ -243,4 +266,5 @@ class BVH {
   }
 }
 
-export {BVH, Sphere, HitList, Camera, Lambertian, Metal, Dielectric};
+export {BVH, Sphere, HitList, Camera, Lambertian, Metal, Dielectric,
+  ConstantTexture, CheckerTexture};

@@ -1,6 +1,7 @@
 import {v3} from "./utils.js";
 import {BVH, Sphere, HitList, Camera,
-  Lambertian, Metal, Dielectric} from "./raytracer.js";
+  Lambertian, Metal, Dielectric,
+  ConstantTexture, CheckerTexture} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
@@ -24,12 +25,12 @@ function _1setup() {
   world = new HitList();
 
   world.push(new Sphere(v3.new(0, 0, -1), 0.5,
-    new Lambertian(v3.new(0.1, 0.2, 0.5))));
+    new Lambertian(new ConstantTexture(0.1, 0.2, 0.5))));
   world.push(new Sphere(v3.new(0, -100.5, -1), 100,
-    new Lambertian(v3.new(0.8, 0.8, 0.0))));
+    new Lambertian(new ConstantTexture(0.8, 0.8, 0.0))));
 
   world.push(new Sphere(v3.new(1, 0, -1), 0.5,
-    new Metal(v3.new(0.8, 0.6, 0.2), 0.2)));
+    new Metal(new ConstantTexture(0.8, 0.6, 0.2), 0.2)));
 
   world.push(new Sphere(v3.new(-1, 0, -1), 0.5,
     new Dielectric(1.5)));
@@ -46,11 +47,15 @@ function _1setup() {
     20, WIDTH / HEIGHT, 2.0, distToFocus);
 }
 
-function setup() {
+function _2setup() {
   world = new HitList();
 
+  const check = new CheckerTexture(
+    new ConstantTexture(0.2, 0.3, 0.1),
+    new ConstantTexture(0.9, 0.9, 0.9));
+
   world.push(new Sphere(v3.new(0, -1000, 0), 1000,
-    new Lambertian(v3.new(0.5, 0.5, 0.5))));
+    new Lambertian(check)));
 
   for (let a = -11; a < 11; ++a) {
     for (let b = -11; b < 11; ++b) {
@@ -61,12 +66,12 @@ function setup() {
 
       if (mat < 0.8) {
         world.push(new Sphere(center, 0.2,
-          new Lambertian(v3.new(
+          new Lambertian(new ConstantTexture(
             R() * R(),
             R() * R(),
             R() * R()))));
       } else if (mat < 0.95) {
-        world.push(new Sphere(center, 0.2, new Metal(v3.new(
+        world.push(new Sphere(center, 0.2, new Metal(new ConstantTexture(
           0.5 * (1 + R()),
           0.5 * (1 + R()),
           0.5 * (1 + R())),
@@ -79,9 +84,9 @@ function setup() {
 
   world.push(new Sphere(v3.new(0, 1, 0), 1, new Dielectric(1.5)));
   world.push(new Sphere(v3.new(-4, 1, 0), 1,
-    new Lambertian(v3.new(0.4, 0.2, 0.1))));
+    new Lambertian(new ConstantTexture(0.4, 0.2, 0.1))));
   world.push(new Sphere(v3.new(4, 1, 0), 1,
-    new Metal(v3.new(0.7, 0.6, 0.5), 0.0)));
+    new Metal(new ConstantTexture(0.7, 0.6, 0.5), 0.0)));
 
   world = new BVH(world);
 
@@ -89,6 +94,29 @@ function setup() {
   const lookat = v3.new(0, 0, -1);
   const distToFocus = 10.0; //lookfrom.sub(lookat).len;
   const aperture = 0.1;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    v3.new(0, 1, 0),
+    20, WIDTH / HEIGHT, aperture, distToFocus);
+}
+
+function setup() {
+  world = new HitList();
+
+  const check = new CheckerTexture(
+    new ConstantTexture(0.2, 0.3, 0.1),
+    new ConstantTexture(0.9, 0.9, 0.9));
+
+  world.push(new Sphere(v3.new(0, -10, 0), 10, new Lambertian(check)));
+  world.push(new Sphere(v3.new(0, 10, 0), 10, new Lambertian(check)));
+
+  world = new BVH(world);
+
+  const lookfrom = v3.new(13, 2, 3);
+  const lookat = v3.new(0, 0, 0);
+  const distToFocus = 10.0;
+  const aperture = 0.0;
 
   camera = new Camera(
     lookfrom, lookat,

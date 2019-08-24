@@ -46,6 +46,8 @@ const wp = [];
 const WIDTH = 1920 / 2;
 const HEIGHT = 1080 / 2;
 const SAMPLING = 100;
+// Argh, we are using half cores, because Chrome is not allocating all
+// cores in Mac.
 const THREADS = Math.ceil(Math.max(1, navigator.hardwareConcurrency / 2));
 const WORKSIZE = 50;
 const RANDPOOL = [];
