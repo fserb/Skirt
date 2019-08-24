@@ -1,7 +1,7 @@
 import {v3} from "./utils.js";
 import {BVH, Sphere, HitList, Camera,
   Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture} from "./raytracer.js";
+  ConstantTexture, CheckerTexture, NoiseTexture} from "./raytracer.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
@@ -13,10 +13,8 @@ self.log = function(...msg) {
   self.console.log(...msg);
 };
 
-let _Rcount = -1;
 function R() {
-  _Rcount = (_Rcount + 1) % RANDPOOL.length;
-  return RANDPOOL[_Rcount];
+  return RANDPOOL.pop();
 }
 
 let world, camera;
@@ -104,12 +102,10 @@ function _2setup() {
 function setup() {
   world = new HitList();
 
-  const check = new CheckerTexture(
-    new ConstantTexture(0.2, 0.3, 0.1),
-    new ConstantTexture(0.9, 0.9, 0.9));
+  const pertext = new NoiseTexture(R, 5);
 
-  world.push(new Sphere(v3.new(0, -10, 0), 10, new Lambertian(check)));
-  world.push(new Sphere(v3.new(0, 10, 0), 10, new Lambertian(check)));
+  world.push(new Sphere(v3.new(0, -1000, 0), 1000, new Lambertian(pertext)));
+  world.push(new Sphere(v3.new(0, 2, 0), 2, new Lambertian(pertext)));
 
   world = new BVH(world);
 
@@ -187,6 +183,7 @@ self.addEventListener('message', ev => {
     HEIGHT = ev.data.height;
     RANDPOOL = ev.data.randpool;
     setup();
+    log("Rand pool leftover:", RANDPOOL.length);
   } else if (ev.data.type == 'work') {
     work(ev.data);
     FIRST = false;

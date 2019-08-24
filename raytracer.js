@@ -1,4 +1,4 @@
-import {v3, Ray,
+import {v3, Ray, Perlin,
   randomInUnitSphere, randomInUnitDisk} from "./utils.js";
 
 class AABB {
@@ -73,6 +73,20 @@ class CheckerTexture {
     } else {
       return this.even.value(u, v, p);
     }
+  }
+}
+
+class NoiseTexture {
+  constructor(source, scale) {
+    this.perlin = new Perlin(source);
+    this.scale = scale;
+  }
+
+  value(u, v, p) {
+    // return v3.mul(v3.new(1, 1, 1), 0.5 * (1 + this.perlin.noise(v3.mul(this.scale, p))));
+    // return v3.mul(v3.new(1, 1, 1), this.perlin.turb(v3.mul(this.scale, p)));
+    return v3.mul(v3.new(1, 1, 1),
+      0.5 * ( 1 + Math.sin(this.scale * p.z + 10 * this.perlin.turb(p))));
   }
 }
 
@@ -267,4 +281,4 @@ class BVH {
 }
 
 export {BVH, Sphere, HitList, Camera, Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture};
+  ConstantTexture, CheckerTexture, NoiseTexture};

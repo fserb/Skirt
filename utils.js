@@ -109,4 +109,95 @@ function randomInUnitDisk() {
   return v3.new(r * Math.cos(t), r * Math.sin(t));
 }
 
-export {v3, Ray, randomInUnitSphere, randomInUnitDisk};
+class Perlin {
+  constructor(source) {
+    this.source = source;
+    this.ranvec = this._generatePerlin();
+    this.permX = this._generatePerm();
+    this.permY = this._generatePerm();
+    this.permZ = this._generatePerm();
+  }
+
+  noise(p) {
+    const u = p.x - Math.floor(p.x);
+    const v = p.y - Math.floor(p.y);
+    const w = p.z - Math.floor(p.z);
+    const i = Math.floor(p.x);
+    const j = Math.floor(p.y);
+    const k = Math.floor(p.z);
+    const mat = [];
+
+    for (let dk = 0; dk < 2; ++dk) {
+      for (let dj = 0; dj < 2; ++dj) {
+        for (let di = 0; di < 2; ++di) {
+          mat.push(
+            this.ranvec[this.permX[(i + di) & 255] ^
+              this.permY[(j + dj) & 255] ^
+              this.permZ[(k + dk) & 255]]);
+        }
+      }
+    }
+
+    return this._interpTrilinear(mat, u, v, w);
+  }
+
+  turb(p, depth = 7) {
+    let accum = 0;
+    let temp = p;
+    let weight = 1.0;
+    for (let i = 0; i < depth; ++i) {
+      accum += weight * this.noise(temp);
+      weight *= 0.5;
+      temp = v3.mul(2, temp);
+    }
+    return Math.abs(accum);
+  }
+
+  _interpTrilinear(mat, u, v, w) {
+    const uu = u * u * (3 - 2 * u);
+    const vv = v * v * (3 - 2 * v);
+    const ww = w * w * (3 - 2 * w);
+    let ret = 0;
+    for (let i = 0; i < 2; ++i) {
+      for (let j = 0; j < 2; ++j) {
+        for (let k = 0; k < 2; ++k) {
+          const weightv = v3.new(u - i, v - j, w - k);
+          ret += (i * uu + (1 - i) * (1 - uu)) *
+                 (j * vv + (1 - j) * (1 - vv)) *
+                 (k * ww + (1 - k) * (1 - ww)) *
+                 v3.dot(mat[i + j * 2 + k * 4], weightv);
+        }
+      }
+    }
+    return ret;
+  }
+
+  _generatePerlin() {
+    const ret = [];
+    for (let i = 0; i < 256; ++i) {
+      ret.push(v3.unit(v3.new(
+        -1 + 2 * this.source(),
+        -1 + 2 * this.source(),
+        -1 + 2 * this.source())));
+    }
+    return ret;
+  }
+
+  _permute(list) {
+    for (let i = list.length - 1; i >= 0; --i) {
+      const target = Math.floor(this.source() * (i + 1));
+      const tmp = list[i];
+      list[i] = list[target];
+      list[target] = tmp;
+    }
+  }
+
+  _generatePerm() {
+    const ret = [];
+    for (let i = 0; i < 256; ++i) ret.push(i);
+    this._permute(ret);
+    return ret;
+  }
+}
+
+export {Perlin, v3, Ray, randomInUnitSphere, randomInUnitDisk};
