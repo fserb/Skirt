@@ -1,4 +1,4 @@
-import {v3, Ray, randomInUnitDisk, getSphereUV} from "./utils.js";
+import {v3, Ray, randomInUnitDisk} from "./utils.js";
 
 class AABB {
   constructor(a, b) { this.min = a; this.max = b; }
@@ -57,48 +57,6 @@ class Camera {
 // hitable:
 //   hit(r, minT, maxT) -> {t, p, normal, material}
 //   bbox() -> AABB
-
-class Sphere {
-  constructor(center, radius, material) {
-    this.center = center;
-    this.radius = radius;
-    this.material = material;
-  }
-
-  hit(r, minT, maxT) {
-    const oc = v3.sub(r.origin, this.center);
-    const a = v3.dot(r.direction, r.direction);
-    const b = v3.dot(oc, r.direction);
-    const c = v3.dot(oc, oc) - this.radius * this.radius;
-    const delta = b * b - a * c;
-    if (delta > 0) {
-      let t = (-b - Math.sqrt(delta)) / a;
-      if (t < maxT && t > minT) {
-        const p = r.pointAt(t);
-        const normal = v3.div(v3.sub(p, this.center), this.radius);
-        return { t: t, p: p,
-          uv: getSphereUV(normal),
-          normal: normal,
-          material: this.material };
-      }
-      t = (-b + Math.sqrt(delta)) / a;
-      if (t < maxT && t > minT) {
-        const p = r.pointAt(t);
-        const normal = v3.div(v3.sub(p, this.center), this.radius);
-        return { t: t, p: p,
-          uv: getSphereUV(normal),
-          normal: normal,
-          material: this.material };
-      }
-    }
-    return null;
-  }
-
-  bbox() {
-    return new AABB(v3.sub(this.center, this.radius),
-      v3.add(this.center, this.radius));
-  }
-}
 
 class HitList extends Array {
   hit(r, minT, maxT) {
@@ -172,4 +130,4 @@ class BVH {
   }
 }
 
-export {BVH, Sphere, HitList, Camera};
+export {AABB, BVH, HitList, Camera};

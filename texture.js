@@ -29,11 +29,11 @@ class NoiseTexture {
   }
 
   value(uv, p) {
-    return v3.mul(v3.new(1, 1, 1),
-      0.5 * (1 + this.perlin.noise(v3.mul(this.scale, p))));
-    // return v3.mul(v3.new(1, 1, 1), this.perlin.turb(v3.mul(this.scale, p)));
     // return v3.mul(v3.new(1, 1, 1),
-    //   0.5 * (1 + Math.sin(this.scale * p.z + 10 * this.perlin.turb(p))));
+    //   0.5 * (1 + this.perlin.noise(v3.mul(this.scale, p))));
+    // return v3.mul(v3.new(1, 1, 1), this.perlin.turb(v3.mul(this.scale, p)));
+    return v3.mul(v3.new(1, 1, 1),
+      0.5 * (1 + Math.sin(this.scale * p.z + 10 * this.perlin.turb(p))));
   }
 }
 
@@ -68,10 +68,36 @@ class ImageTexture {
   }
 }
 
-// material: scatter(r, {t, p, normal}, attenuation) -> scattered
+// material:
+//   scatter(r, {t, p, normal}) -> {scattered, attenuation}
+//   emitted(u, v, p) -> color
 
-class Lambertian {
+class Material {
+  scatter(_ray, _record) { throw "Not implemented"; }
+
+  emitted(_u, _v, _p) {
+    return v3.new(0, 0, 0);
+  }
+}
+
+class DiffuseLight extends Material {
+  constructor(emit) {
+    super();
+    this.emit = emit;
+  }
+
+  scatter(_ray, _record) {
+    return null;
+  }
+
+  emitted(u, v, p) {
+    return this.emit.value(u, v, p);
+  }
+}
+
+class Lambertian extends Material {
   constructor(albedo) {
+    super();
     this.albedo = albedo;
   }
 
@@ -85,8 +111,9 @@ class Lambertian {
   }
 }
 
-class Metal {
+class Metal extends Material {
   constructor(albedo, fuzz) {
+    super();
     this.albedo = albedo;
     this.fuzz = Math.min(1, fuzz);
   }
@@ -106,8 +133,9 @@ class Metal {
   }
 }
 
-class Dielectric {
+class Dielectric extends Material {
   constructor(ri) {
+    super();
     this.ri = ri;
   }
 
@@ -145,4 +173,5 @@ class Dielectric {
 }
 
 export {Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture};
+  ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture,
+  DiffuseLight};

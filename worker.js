@@ -1,11 +1,15 @@
 import {v3} from "./utils.js";
-import {BVH, Sphere, HitList, Camera} from "./raytracer.js";
+import {BVH, HitList, Camera} from "./raytracer.js";
+import {Sphere, RectXY} from "./object.js";
 import {Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture, NoiseTexture,
-  ImageTexture} from "./texture.js";
+  ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture,
+  DiffuseLight
+} from "./texture.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
+
+const MAX_COLOR_DEPTH = 50;
 
 const LOADING = [];
 
@@ -102,7 +106,7 @@ function _2setup() {
     20, WIDTH / HEIGHT, aperture, distToFocus);
 }
 
-function setup() {
+function _3setup() {
   world = new HitList();
 
   const pertext = new NoiseTexture(R, 5);
@@ -110,8 +114,12 @@ function setup() {
   const earth = new ImageTexture("./textures/2k_earth_daymap.jpg");
   LOADING.push(earth.load);
 
+  const light = new DiffuseLight(new ConstantTexture(5, 5, 5));
+
   world.push(new Sphere(v3.new(0, -1000, 0), 1000, new Lambertian(pertext)));
   world.push(new Sphere(v3.new(0, 2, 0), 2, new Lambertian(earth)));
+
+  world.push(new Sphere(v3.new(2, 1, 3), 0.5, light));
 
   world = new BVH(world);
 
@@ -126,23 +134,45 @@ function setup() {
     20, WIDTH / HEIGHT, aperture, distToFocus);
 }
 
+function setup() {
+  world = new HitList();
+
+  const pertext = new NoiseTexture(R, 4);
+
+  world.push(new Sphere(v3.new(0, -1000, 0), 1000, new Lambertian(pertext)));
+  world.push(new Sphere(v3.new(0, 2, 0), 2, new Lambertian(pertext)));
+
+  world.push(new Sphere(v3.new(0, 7, 0), 2, new DiffuseLight(new ConstantTexture(4, 4, 4))));
+  world.push(new RectXY(3, 1, 5, 3, -2, new DiffuseLight(new ConstantTexture(4, 4, 4))));
+
+  world = new BVH(world);
+
+  const lookfrom = v3.new(13, 2, 2);
+  const lookat = v3.new(0, 0, 0);
+  const distToFocus = 10.0;
+  const aperture = 0.0;
+  const vfov = 50;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    v3.new(0, 1, 0),
+    vfov, WIDTH / HEIGHT, aperture, distToFocus);
+}
+
 function color(ray, world, depth) {
   const hit = world.hit(ray, 0.001, Infinity);
   if (hit) {
+    const emitted = hit.material.emitted(hit.u, hit.v, hit.p);
     const mathit = hit.material.scatter(ray, hit);
-    if (depth < 50 && mathit) {
-      return v3.mul(color(mathit.scattered, world, depth + 1),
-        mathit.attenuation);
+    if (depth < MAX_COLOR_DEPTH && mathit) {
+      return v3.add(emitted,
+        v3.mul(color(mathit.scattered, world, depth + 1),
+          mathit.attenuation));
     } else {
-      return v3.new(0, 0, 0);
+      return emitted;
     }
   }
-
-  const unitDirection = v3.unit(ray.direction);
-  const f = 0.5 * (unitDirection.y + 1.0);
-  const a = v3.new(1, 1, 1);
-  const b = v3.new(0.5, 0.7, 1.0);
-  return v3.add(v3.mul(1.0 - f, a), v3.mul(f, b));
+  return v3.new(0, 0, 0);
 }
 
 function render(data, info) {
