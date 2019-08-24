@@ -1,7 +1,7 @@
 import {v3} from "./utils.js";
-import {BVH, Sphere, HitList, Camera,
-  Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture, NoiseTexture} from "./raytracer.js";
+import {BVH, Sphere, HitList, Camera} from "./raytracer.js";
+import {Lambertian, Metal, Dielectric,
+  ConstantTexture, CheckerTexture, NoiseTexture} from "./texture.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
