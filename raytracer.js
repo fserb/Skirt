@@ -1,4 +1,4 @@
-import {v3, Ray, randomInUnitDisk} from "./utils.js";
+import {v3, Ray, randomInUnitDisk, getSphereUV} from "./utils.js";
 
 class AABB {
   constructor(a, b) { this.min = a; this.max = b; }
@@ -75,15 +75,19 @@ class Sphere {
       let t = (-b - Math.sqrt(delta)) / a;
       if (t < maxT && t > minT) {
         const p = r.pointAt(t);
+        const normal = v3.div(v3.sub(p, this.center), this.radius);
         return { t: t, p: p,
-          normal: v3.div(v3.sub(p, this.center), this.radius),
+          uv: getSphereUV(normal),
+          normal: normal,
           material: this.material };
       }
       t = (-b + Math.sqrt(delta)) / a;
       if (t < maxT && t > minT) {
         const p = r.pointAt(t);
+        const normal = v3.div(v3.sub(p, this.center), this.radius);
         return { t: t, p: p,
-          normal: v3.div(v3.sub(p, this.center), this.radius),
+          uv: getSphereUV(normal),
+          normal: normal,
           material: this.material };
       }
     }

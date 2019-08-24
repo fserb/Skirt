@@ -1,10 +1,13 @@
 import {v3} from "./utils.js";
 import {BVH, Sphere, HitList, Camera} from "./raytracer.js";
 import {Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture, NoiseTexture} from "./texture.js";
+  ConstantTexture, CheckerTexture, NoiseTexture,
+  ImageTexture} from "./texture.js";
 
 // eslint-disable-next-line no-unused-vars
 let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
+
+const LOADING = [];
 
 let FIRST = true;
 // eslint-disable-next-line no-unused-vars
@@ -104,8 +107,11 @@ function setup() {
 
   const pertext = new NoiseTexture(R, 5);
 
+  const earth = new ImageTexture("./textures/2k_earth_daymap.jpg");
+  LOADING.push(earth.load);
+
   world.push(new Sphere(v3.new(0, -1000, 0), 1000, new Lambertian(pertext)));
-  world.push(new Sphere(v3.new(0, 2, 0), 2, new Lambertian(pertext)));
+  world.push(new Sphere(v3.new(0, 2, 0), 2, new Lambertian(earth)));
 
   world = new BVH(world);
 
@@ -185,7 +191,13 @@ self.addEventListener('message', ev => {
     setup();
     log("Rand pool leftover:", RANDPOOL.length);
   } else if (ev.data.type == 'work') {
-    work(ev.data);
-    FIRST = false;
+    if (LOADING) {
+      Promise.all(LOADING).then(() => {
+        work(ev.data);
+      });
+    } else {
+      work(ev.data);
+      FIRST = false;
+    }
   }
 });

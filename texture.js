@@ -5,19 +5,19 @@ import {v3, Ray, Perlin,
 
 class ConstantTexture {
   constructor(r, g, b) { this.color = v3.new(r, g, b); }
-  value(_u, _v, _p) {
+  value(_uv, _p) {
     return this.color;
   }
 }
 
 class CheckerTexture {
   constructor(a, b) { this.even = a; this.odd = b; }
-  value(u, v, p) {
+  value(uv, p) {
     const sines = Math.sin(10 * p.x) * Math.sin(10 * p.y) * Math.sin(10 * p.z);
     if (sines < 0) {
-      return this.odd.value(u, v, p);
+      return this.odd.value(uv, p);
     } else {
-      return this.even.value(u, v, p);
+      return this.even.value(uv, p);
     }
   }
 }
@@ -28,11 +28,43 @@ class NoiseTexture {
     this.scale = scale;
   }
 
-  value(u, v, p) {
-    // return v3.mul(v3.new(1, 1, 1), 0.5 * (1 + this.perlin.noise(v3.mul(this.scale, p))));
-    // return v3.mul(v3.new(1, 1, 1), this.perlin.turb(v3.mul(this.scale, p)));
+  value(uv, p) {
     return v3.mul(v3.new(1, 1, 1),
-      0.5 * (1 + Math.sin(this.scale * p.z + 10 * this.perlin.turb(p))));
+      0.5 * (1 + this.perlin.noise(v3.mul(this.scale, p))));
+    // return v3.mul(v3.new(1, 1, 1), this.perlin.turb(v3.mul(this.scale, p)));
+    // return v3.mul(v3.new(1, 1, 1),
+    //   0.5 * (1 + Math.sin(this.scale * p.z + 10 * this.perlin.turb(p))));
+  }
+}
+
+class ImageTexture {
+  constructor(name) {
+    this.image = null;
+    this.load = fetch(name)
+      .then(res => {return res.blob(); })
+      .then(blob => {return createImageBitmap(blob); })
+      .then(ib => {
+        const oc = new OffscreenCanvas(ib.width, ib.height);
+        const ctx = oc.getContext("2d");
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(ib, 0, 0);
+        this.image = ctx.getImageData(0, 0, ib.width, ib.height).data;
+        this.image.width = ib.width;
+        this.image.height = ib.height;
+      });
+  }
+
+  value(uv, _p) {
+    if (!this.image) return v3.new(0.5, 0.5, 0.5);
+    let i = Math.floor(uv[0] * this.image.width);
+    let j = Math.floor(uv[1] * this.image.height);
+    if (i < 0) i = 0;
+    if (j < 0) j = 0;
+    if (i >= this.image.width) i = this.image.width - 1;
+    if (j >= this.image.height) j = this.image.height - 1;
+    const p = 4 * (i + this.image.width * j);
+    return v3.new(this.image[p] / 255,
+      this.image[p + 1] / 255, this.image[p + 2] / 255);
   }
 }
 
@@ -49,7 +81,7 @@ class Lambertian {
       randomInUnitSphere());
     return {
       scattered: new Ray(record.p, v3.sub(target, record.p)),
-      attenuation: this.albedo.value(0, 0, record.p) };
+      attenuation: this.albedo.value(record.uv, record.p) };
   }
 }
 
@@ -67,7 +99,7 @@ class Metal {
 
     if (v3.dot(scattered.direction, record.normal) > 0) {
       return { scattered: scattered,
-        attenuation: this.albedo.value(0, 0, record.p) };
+        attenuation: this.albedo.value(record.uv, record.p) };
     } else {
       return null;
     }
@@ -113,4 +145,4 @@ class Dielectric {
 }
 
 export {Lambertian, Metal, Dielectric,
-  ConstantTexture, CheckerTexture, NoiseTexture};
+  ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture};

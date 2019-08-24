@@ -85,6 +85,13 @@ v3.min = (a, b) => v3.new(Math.min(a[0], b[0]),
 v3.max = (a, b) => v3.new(Math.max(a[0], b[0]),
   Math.max(a[1], b[1]), Math.max(a[2], b[2]));
 
+function getSphereUV(normal) {
+  const phi = Math.atan2(normal.z, normal.x);
+  const theta = Math.asin(normal.y);
+  return [1 - (phi + Math.PI) / (2 * Math.PI),
+    (theta + Math.PI / 2) / Math.PI];
+}
+
 class Ray {
   constructor(a, b) {
     this.a = a;
@@ -200,4 +207,4 @@ class Perlin {
   }
 }
 
-export {Perlin, v3, Ray, randomInUnitSphere, randomInUnitDisk};
+export {Perlin, v3, Ray, randomInUnitSphere, randomInUnitDisk, getSphereUV};
