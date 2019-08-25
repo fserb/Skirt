@@ -1,4 +1,15 @@
-import {v3, Ray, randomInUnitDisk} from "./utils.js";
+import {v3, randomInUnitDisk} from "./utils.js";
+
+class Ray {
+  constructor(a, b) {
+    this.a = a;
+    this.b = b;
+  }
+  get origin() { return this.a; }
+  get direction() { return this.b; }
+
+  pointAt(t) { return v3.add(this.a, v3.mul(this.b, t)); }
+}
 
 class AABB {
   constructor(a, b) { this.min = a; this.max = b; }
@@ -130,4 +141,4 @@ class BVH {
   }
 }
 
-export {AABB, BVH, HitList, Camera};
+export {Ray, AABB, BVH, HitList, Camera};

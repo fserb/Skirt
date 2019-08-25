@@ -1,5 +1,6 @@
-import {v3, Ray, Perlin,
+import {v3, Perlin,
   randomInUnitSphere} from "./utils.js";
+import {Ray} from "./raytracer.js";
 
 // texture: value(u, v, p) -> vec3
 

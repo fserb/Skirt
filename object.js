@@ -1,5 +1,5 @@
-import {AABB} from "./raytracer.js";
-import {v3, getSphereUV} from "./utils.js";
+import {AABB, HitList, Ray} from "./raytracer.js";
+import {v3, Mat4, getSphereUV} from "./utils.js";
 
 class FlipNormal {
   constructor(obj) { this.obj = obj; }
@@ -149,4 +149,89 @@ class RectYZ {
   }
 }
 
-export {FlipNormal, RectXY, RectXZ, RectYZ, Sphere};
+class Box {
+  constructor(p0, p1, material) {
+    this.pmin = p0;
+    this.pmax = p1;
+
+    this.list = new HitList();
+    this.list.push(new RectXY(p0.x, p0.y, p1.x, p1.y, p1.z, material));
+    this.list.push(new FlipNormal(
+      new RectXY(p0.x, p0.y, p1.x, p1.y, p0.z, material)));
+
+    this.list.push(new RectXZ(p0.x, p0.z, p1.x, p1.z, p1.y, material));
+    this.list.push(new FlipNormal(
+      new RectXZ(p0.x, p0.z, p1.x, p1.z, p0.y, material)));
+
+    this.list.push(new RectYZ(p0.y, p0.z, p1.y, p1.z, p1.x, material));
+    this.list.push(new FlipNormal(
+      new RectYZ(p0.y, p0.z, p1.y, p1.z, p0.x, material)));
+  }
+
+  hit(r, minT, maxT) {
+    return this.list.hit(r, minT, maxT);
+  }
+
+  bbox() {
+    return new AABB(this.pmin, this.pmax);
+  }
+}
+
+class Transform {
+  constructor(translate, rotate, scale, obj) {
+    this.transform = new Mat4();
+    this.transform.translate(translate);
+    this.transform.rotateX(rotate.x);
+    this.transform.rotateY(rotate.y);
+    this.transform.rotateZ(rotate.z);
+    this.transform.scale(scale);
+    this.invTransform = new Mat4();
+    this.invTransform.scale(v3.div(1, scale));
+    this.invTransform.rotateZ(-rotate.z);
+    this.invTransform.rotateY(-rotate.y);
+    this.invTransform.rotateX(-rotate.x);
+    this.invTransform.translate(v3.mul(-1, translate));
+    this.obj = obj;
+
+    // calculate bbox
+    const orig = obj.bbox();
+
+    const points = [
+      v3.new(orig.min.x, orig.min.y, orig.min.z),
+      v3.new(orig.min.x, orig.min.y, orig.max.z),
+      v3.new(orig.min.x, orig.max.y, orig.min.z),
+      v3.new(orig.min.x, orig.max.y, orig.max.z),
+      v3.new(orig.max.x, orig.min.y, orig.min.z),
+      v3.new(orig.max.x, orig.min.y, orig.max.z),
+      v3.new(orig.max.x, orig.max.y, orig.min.z),
+      v3.new(orig.max.x, orig.max.y, orig.max.z)];
+
+    const min = v3.new(Infinity, Infinity, Infinity);
+    const max = v3.new(-Infinity, -Infinity, -Infinity);
+    for (let i = 0; i < 8; ++i) {
+      const p = v3.transform(points[i], this.transform);
+      for (let j = 0; j < 3; ++j) {
+        if (p[j] < min[j]) min[j] = p[j];
+        if (p[j] > max[j]) max[j] = p[j];
+      }
+    }
+
+    this.bbox_ = new AABB(min, max);
+  }
+
+  bbox() {
+    return this.bbox_;
+  }
+
+  hit(r, minT, maxT) {
+    const tr = new Ray(v3.transform(r.origin, this.invTransform),
+      v3.transformNormal(r.direction, this.invTransform));
+    const h = this.obj.hit(tr, minT, maxT);
+    if (!h) return null;
+    h.p = v3.transform(h.p, this.transform);
+    h.normal = v3.unit(v3.transformNormal(h.normal, this.transform));
+    return h;
+  }
+}
+
+export {FlipNormal, RectXY, RectXZ, RectYZ, Box, Sphere, Transform};
