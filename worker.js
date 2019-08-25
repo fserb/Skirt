@@ -1,6 +1,6 @@
 import {v3} from "./utils.js";
 import {BVH, HitList, Camera} from "./raytracer.js";
-import {Sphere, RectXY} from "./object.js";
+import {FlipNormal, Sphere, RectXY, RectXZ, RectYZ} from "./object.js";
 import {Lambertian, Metal, Dielectric,
   ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture,
   DiffuseLight
@@ -134,7 +134,7 @@ function _3setup() {
     20, WIDTH / HEIGHT, aperture, distToFocus);
 }
 
-function setup() {
+function _4setup() {
   world = new HitList();
 
   const pertext = new NoiseTexture(R, 4);
@@ -152,6 +152,35 @@ function setup() {
   const distToFocus = 10.0;
   const aperture = 0.0;
   const vfov = 50;
+
+  camera = new Camera(
+    lookfrom, lookat,
+    v3.new(0, 1, 0),
+    vfov, WIDTH / HEIGHT, aperture, distToFocus);
+}
+
+function setup() {
+  world = new HitList();
+
+  const red = new Lambertian(new ConstantTexture(0.65, 0.05, 0.05));
+  const white = new Lambertian(new ConstantTexture(0.73, 0.73, 0.73));
+  const green = new Lambertian(new ConstantTexture(0.12, 0.45, 0.15));
+  const light = new DiffuseLight(new ConstantTexture(7, 7, 7));
+
+  world.push(new FlipNormal(new RectYZ(0, 0, 555, 555, 555, green)));
+  world.push(new RectYZ(0, 0, 555, 555, 0, red));
+  world.push(new RectXZ(123, 147, 423, 412, 554, light));
+  world.push(new FlipNormal(new RectXZ(0, 0, 555, 555, 555, white)));
+  world.push(new RectXZ(0, 0, 555, 555, 0, white));
+  world.push(new FlipNormal(new RectXY(0, 0, 555, 555, 555, white)));
+
+  world = new BVH(world);
+
+  const lookfrom = v3.new(278, 278, -800);
+  const lookat = v3.new(278, 278, 0);
+  const distToFocus = 10.0;
+  const aperture = 0.0;
+  const vfov = 40;
 
   camera = new Camera(
     lookfrom, lookat,
