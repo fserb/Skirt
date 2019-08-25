@@ -1,2 +1,19 @@
 RayTracer
 =========
+
+- 3rd book
+- webassembly tracer?
+- progressive scans
+- multi renderer distribution
+
+- gpu.js ? http://gpu.rocks/
+
+
+
+
+
+References
+----------
+
+https://tmcw.github.io/literate-raytracer/
+https://github.com/erichlof/THREE.js-PathTracing-Renderer/tree/gh-pages/js

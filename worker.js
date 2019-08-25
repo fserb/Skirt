@@ -1,7 +1,7 @@
 import {v3} from "./utils.js";
 import {BVH, HitList, Camera} from "./raytracer.js";
 import {FlipNormal, Sphere, RectXY, RectXZ, RectYZ,
-  Box, Transform} from "./object.js";
+  Box, Transform, ConstantMedium} from "./object.js";
 import {Lambertian, Metal, Dielectric,
   ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture,
   DiffuseLight
@@ -175,19 +175,22 @@ function setup() {
   world.push(new RectXZ(0, 0, 555, 555, 0, white));
   world.push(new FlipNormal(new RectXY(0, 0, 555, 555, 555, white)));
 
-  world.push(
+  const box1 =
     new Transform(
       v3.new(130 + 82.5, 82.5, 65 + 82.5),
       v3.new(0, -Math.PI / 6, 0),
       v3.new(82.5, 82.5, 82.5),
-      new Box(v3.new(-1, -1, -1), v3.new(1, 1, 1), white)));
+      new Box(v3.new(-1, -1, -1), v3.new(1, 1, 1), white));
 
-  world.push(
+  const box2 =
     new Transform(
       v3.new(265 + 82.5, 165, 295 + 82.5),
       v3.new(0, Math.PI / 8, 0),
       v3.new(82.5, 165, 82.5),
-      new Box(v3.new(-1, -1, -1), v3.new(1, 1, 1), white)));
+      new Box(v3.new(-1, -1, -1), v3.new(1, 1, 1), white));
+
+  world.push(new ConstantMedium(box1, 0.01, new ConstantTexture(1, 1, 1)));
+  world.push(new ConstantMedium(box2, 0.01, new ConstantTexture(0, 0, 0)));
 
   world = new BVH(world);
 

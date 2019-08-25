@@ -81,6 +81,19 @@ class Material {
   }
 }
 
+class Isotropic extends Material {
+  constructor(albedo) {
+    super();
+    this.albedo = albedo;
+  }
+
+  scatter(ray, record) {
+    return {
+      scattered: new Ray(record.p, randomInUnitSphere()),
+      attenuation: this.albedo.value(record.uv, record.p) };
+  }
+}
+
 class DiffuseLight extends Material {
   constructor(emit) {
     super();
@@ -173,6 +186,6 @@ class Dielectric extends Material {
   }
 }
 
-export {Lambertian, Metal, Dielectric,
+export {Lambertian, Metal, Dielectric, Isotropic,
   ConstantTexture, CheckerTexture, NoiseTexture, ImageTexture,
   DiffuseLight};

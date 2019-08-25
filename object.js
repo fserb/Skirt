@@ -1,4 +1,5 @@
 import {AABB, HitList, Ray} from "./raytracer.js";
+import {Isotropic} from "./texture.js";
 import {v3, Mat4, getSphereUV} from "./utils.js";
 
 class FlipNormal {
@@ -14,6 +15,42 @@ class FlipNormal {
 
   bbox() {
     return this.obj.bbox();
+  }
+}
+
+class ConstantMedium {
+  constructor(boundary, density, texture) {
+    this.boundary = boundary;
+    this.density = density;
+    this.phaseFunction = new Isotropic(texture);
+  }
+
+  hit(r, minT, maxT) {
+    const rec1 = this.boundary.hit(r, -Infinity, Infinity);
+    if (!rec1) return null;
+    const rec2 = this.boundary.hit(r, rec1.t + 0.0001, Infinity);
+    if (!rec2) return null;
+
+    rec1.t = Math.max(minT, rec1.t);
+    rec2.t = Math.min(maxT, rec2.t);
+    if (rec1.t >= rec2.t) return null;
+    rec1.t = Math.max(0, rec1.t);
+
+    const distInsideBoundary = (rec2.t - rec1.t) * r.direction.len;
+    const hitDistance = -(1 / this.density) * Math.log(Math.random());
+    if (hitDistance >= distInsideBoundary) return null;
+
+    const t = rec1.t + hitDistance / r.direction.len;
+    return {
+      t: t,
+      p: r.pointAt(t),
+      normal: v3.new(1, 0, 0),
+      material: this.phaseFunction
+    };
+  }
+
+  bbox() {
+    return this.boundary.bbox();
   }
 }
 
@@ -234,4 +271,5 @@ class Transform {
   }
 }
 
-export {FlipNormal, RectXY, RectXZ, RectYZ, Box, Sphere, Transform};
+export {FlipNormal, RectXY, RectXZ, RectYZ, Box, Sphere,
+  ConstantMedium, Transform};

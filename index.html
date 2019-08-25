@@ -44,13 +44,13 @@ body {
 
 <script type='module'>
 const wp = [];
-const WIDTH = 506 * 4; //1920 / 2;
-const HEIGHT = 253 * 4; // 1080 / 2;
-const SAMPLING = 100;
+const WIDTH = 506 * 2; //1920 / 2;
+const HEIGHT = 253 * 2; // 1080 / 2;
+const SAMPLING = 1000;
 // Argh, we are using half cores, because Chrome is not allocating all
 // cores in Mac.
 const THREADS = Math.ceil(Math.max(1, navigator.hardwareConcurrency / 2));
-const WORKSIZE = 50;
+const WORKSIZE = 25;
 const RANDPOOL = [];
 for (let i = 0 ; i < 10000; ++i) {
   RANDPOOL.push(Math.random());
