@@ -52,7 +52,7 @@ body {
 
 <script>
 const FILES = ["broker.js", "index.html", "bs.js", "object.js",
-  "raytracer.js", "texture.js", "utils.js", "worker.js"];
+  "raytracer.js", "texture.js", "utils.js", "worker.js", "scene.js"];
 
 window.genCodehash = async function() {
   return Promise.all(
@@ -74,6 +74,7 @@ window.genCodehash = async function() {
 <script type='preload' src='raytracer.js'></script>
 <script type='preload' src='texture.js'></script>
 <script type='preload' src='object.js'></script>
+<script type='preload' src='scene.js'></script>
 
 <script type='preload' src='bs.js'></script>
 

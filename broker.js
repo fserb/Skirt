@@ -10,11 +10,11 @@ const mode = (() => {
 
 const WIDTH = 506 * 4; //1920 / 2;
 const HEIGHT = 253 * 4; // 1080 / 2;
-const SAMPLING = 100;
+const SAMPLING = 1000;
 const THREADS = Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
   navigator.hardwareConcurrency / 2 :
   navigator.hardwareConcurrency));
-const WORKSIZE = 100;
+const WORKSIZE = 30;
 const SEEDRANDOM = "world";
 const WORKERS = [];
 let CODEHASH = "";
@@ -231,6 +231,7 @@ async function main() {
     setupWork();
   }
   if (mode == "client") {
+    console.log("threads", THREADS);
     document.getElementById("c").style.display = "none";
   }
   if (mode == "server" || mode == "client") {
