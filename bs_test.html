@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+<head></head>
+<body>
+
+<script type="module">
+import BS from "./bs.js";
+
+const bs = window.bs = new BS("ws://localhost:5999/127.0.0.1:11300");
+
+async function main() {
+  await bs.ready;
+
+
+}
+
+main();
+
+</script>
+<script type="live" src="bs.js"></script>
+</body>
+</html>

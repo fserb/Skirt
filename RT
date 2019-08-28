@@ -1,13 +1,21 @@
 RayTracer
 =========
 
+- multi renderer distribution with peer.js
+
 - 3rd book
 - webassembly tracer?
 - progressive scans
-- multi renderer distribution
 
 - gpu.js ? http://gpu.rocks/
 
+
+
+Distributed
+-----------
+beanstalkd
+npx wsproxy -p 5999 -a 127.0.0.1:11300
+aurora
 
 
 

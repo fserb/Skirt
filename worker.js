@@ -7,8 +7,10 @@ import {Lambertian, Metal, Dielectric,
   DiffuseLight
 } from "./texture.js";
 
+import "./node_modules/seedrandom/seedrandom.js";
+
 // eslint-disable-next-line no-unused-vars
-let WIDTH, HEIGHT, THREADS, ID, RANDPOOL;
+let WIDTH, HEIGHT, THREADS, ID, RNG;
 
 const MAX_COLOR_DEPTH = 50;
 
@@ -20,10 +22,6 @@ self.log = function(...msg) {
   if (ID != 0 || !FIRST) return;
   self.console.log(...msg);
 };
-
-function R() {
-  return RANDPOOL.pop();
-}
 
 let world, camera;
 
@@ -65,23 +63,23 @@ function _2setup() {
 
   for (let a = -11; a < 11; ++a) {
     for (let b = -11; b < 11; ++b) {
-      const mat = R();
-      const center = v3.new(a + 0.9 * R(),
-        0.2, b + 0.9 * R());
+      const mat = RNG();
+      const center = v3.new(a + 0.9 * RNG(),
+        0.2, b + 0.9 * RNG());
       if (v3.sub(center, v3.new(4, 0.2, 0)).len < 0.9) continue;
 
       if (mat < 0.8) {
         world.push(new Sphere(center, 0.2,
           new Lambertian(new ConstantTexture(
-            R() * R(),
-            R() * R(),
-            R() * R()))));
+            RNG() * RNG(),
+            RNG() * RNG(),
+            RNG() * RNG()))));
       } else if (mat < 0.95) {
         world.push(new Sphere(center, 0.2, new Metal(new ConstantTexture(
-          0.5 * (1 + R()),
-          0.5 * (1 + R()),
-          0.5 * (1 + R())),
-        0.5 * R())));
+          0.5 * (1 + RNG()),
+          0.5 * (1 + RNG()),
+          0.5 * (1 + RNG())),
+        0.5 * RNG())));
       } else {
         world.push(new Sphere(center, 0.2, new Dielectric(1.5)));
       }
@@ -250,11 +248,13 @@ function render(data, info) {
 
 function work(input) {
   const info = input.info;
-  const buffer = new ArrayBuffer(info.width * info.height * 4);
+  const block = info.block;
+  const buffer = new ArrayBuffer(block.width * block.height * 4);
   const data = new Uint8ClampedArray(buffer);
-  render(data, info);
+  render(data, block);
   info.data = buffer;
-  info.startTime = input.startTime;
+  info.id = input.id;
+  info.codeHash = input.codeHash;
   postMessage(info, [info.data]);
 }
 
@@ -264,9 +264,8 @@ self.addEventListener('message', ev => {
     THREADS = ev.data.threads;
     WIDTH = ev.data.width;
     HEIGHT = ev.data.height;
-    RANDPOOL = ev.data.randpool;
+    RNG = new Math.seedrandom(ev.data.seedrandom);
     setup();
-    log("Rand pool leftover:", RANDPOOL.length);
   } else if (ev.data.type == 'work') {
     if (LOADING) {
       Promise.all(LOADING).then(() => {
