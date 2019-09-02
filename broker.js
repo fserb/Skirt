@@ -8,13 +8,14 @@ const mode = (() => {
   return "single";
 })();
 
-const WIDTH = 506 * 4; //1920 / 2;
-const HEIGHT = 253 * 4; // 1080 / 2;
-const SAMPLING = 10000;
-const THREADS = Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
-  navigator.hardwareConcurrency / 2 :
-  navigator.hardwareConcurrency));
-const WORKSIZE = 10;
+const WIDTH = 506 * 1; //1920 / 2;
+const HEIGHT = 253 * 1; // 1080 / 2;
+const SAMPLING = 10;
+const THREADS = 1;
+// Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
+//   navigator.hardwareConcurrency / 2 :
+//   navigator.hardwareConcurrency));
+const WORKSIZE = 100;
 const SEEDRANDOM = "world";
 const WORKERS = [];
 let CODEHASH = "";
@@ -213,7 +214,8 @@ async function createWorkers() {
   }
 
   for (let i = 0; i < THREADS; ++i) {
-    const worker = new Worker('worker.js', {type:"module"});
+    // const worker = new Worker('worker.js', {type:"module"});
+    const worker = new Worker('worker_rcl.js', {type:"module"});
     worker.addEventListener('message', onMessage);
     worker.state = "loaded";
     WORKERS.push(worker);

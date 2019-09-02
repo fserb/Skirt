@@ -1,0 +1,10 @@
+TOPTARGETS := all clean
+
+SUBDIRS := rcl
+
+$(TOPTARGETS): $(SUBDIRS)
+
+$(SUBDIRS):
+	$(MAKE) -C $@ $(MAKECMDGOALS)
+
+.PHONY: $(TOPTARGETS) $(SUBDIRS)
