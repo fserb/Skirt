@@ -18,6 +18,25 @@ public:
   vec3 origin, direction;
 };
 
+class Camera {
+public:
+  Camera() {
+    origin = vec3(0, 0, 0);
+    lowerLeftCorner = vec3(-2, -1, -1);
+    horizontal = vec3(4, 0 ,0);
+    vertical = vec3(0, 2, 0);
+  }
+
+  Ray getRay(float u, float v) {
+    return Ray(origin, lowerLeftCorner + u * horizontal + v * vertical);
+  }
+
+  vec3 origin;
+  vec3 lowerLeftCorner;
+  vec3 horizontal;
+  vec3 vertical;
+};
+
 struct Hit {
   float t;
   vec3 p;

@@ -1,4 +1,4 @@
-DEPS = Makefile vec3.h raytracer.h objects.h
+DEPS = Makefile vec3.h raytracer.h objects.h utils.h
 SRC = rcl.cpp
 OUTPUT = rcl.mjs
 ROOT = $(shell pwd)

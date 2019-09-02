@@ -11,10 +11,9 @@ const mode = (() => {
 const WIDTH = 506 * 2; //1920 / 2;
 const HEIGHT = 253 * 2; // 1080 / 2;
 const SAMPLING = 100;
-const THREADS = 1;
-// Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
-//   navigator.hardwareConcurrency / 2 :
-//   navigator.hardwareConcurrency));
+const THREADS = Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
+  navigator.hardwareConcurrency / 2:
+  navigator.hardwareConcurrency));
 const WORKSIZE = 100;
 const SEEDRANDOM = "world";
 const WORKERS = [];
