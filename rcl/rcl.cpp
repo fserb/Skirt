@@ -60,6 +60,7 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
   world.add(Sphere::create(vec3(0, -100.5, -1), 100, Lambertian::create(vec3(0.8, 0.8, 0.0))));
   world.add(Sphere::create(vec3(1, 0, -1), 0.5, Metal::create(vec3(0.8, 0.6, 0.2), 0.0)));
   world.add(Sphere::create(vec3(-1, 0, -1), 0.5, Dielectric::create(1.5)));
+  world.add(Sphere::create(vec3(-1, 0, -1), -0.45, Dielectric::create(1.5)));
 
   Camera cam;
 

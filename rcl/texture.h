@@ -66,26 +66,36 @@ public:
 
   Dielectric(float ri) : refidx(ri) { }
 
+  float schlick(float cosine, float refIdx) const {
+    float r0 = (1 - refIdx) / (1 + refIdx);
+    r0 = r0 * r0;
+    return r0 + (1 - r0) * pow((1 - cosine), 5);
+  }
+
+
   virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
     vec3 reflected = reflect(ray.direction, hit.normal);
     float nint;
     vec3 outnormal;
+    float cosine;
     if (dot(ray.direction, hit.normal) > 0) {
       outnormal = -hit.normal;
       nint = refidx;
+      cosine = refidx * dot(ray.direction, hit.normal) / ray.direction.length();
     } else {
       outnormal = hit.normal;
       nint = 1. / refidx;
+      cosine = -refidx * dot(ray.direction, hit.normal) / ray.direction.length();
     }
 
     vec3 refracted = refract(ray.direction, outnormal, nint);
-    Ray scattered;
-    if (refracted) {
-      scattered = Ray(hit.p, refracted);
+    float reflectProb = refracted ? schlick(cosine, refidx) : 1.0;
+
+    if (frand() < reflectProb) {
+      return Scatter{Ray(hit.p, reflected), vec3(1, 1, 1)};
     } else {
-      scattered = Ray(hit.p, reflected);
+      return Scatter{Ray(hit.p, refracted), vec3(1, 1, 1)};
     }
-    return Scatter{scattered, vec3(1, 1, 1)};
   }
 
   float refidx;
