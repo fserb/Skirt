@@ -107,6 +107,24 @@ Scatter NoScatter{Ray{vec3(0, 0, 0), vec3(0, 0, 0)}, vec3(0, 0, 0)};
 class Material {
 public:
   virtual Scatter scatter(const Ray& ray, const Hit& hit) const = 0;
+  virtual vec3 emitted(const vec3& uv, const vec3& p) const {
+    return vec3(0, 0, 0);
+  }
+};
+
+class DiffuseLight : public Material {
+public:
+  DiffuseLight(const shared_ptr<Texture> a) : emit(a) { }
+
+  virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
+    return NoScatter;
+  }
+
+  virtual vec3 emitted(const vec3& uv, const vec3& p) const {
+    return emit->value(uv, p);
+  }
+
+  shared_ptr<Texture> emit;
 };
 
 class Lambertian : public Material {

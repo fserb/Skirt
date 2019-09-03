@@ -25,16 +25,18 @@ vec3 color(const Ray& r, Hitable& world, int depth=0) {
   Hit h = world.hit(r, 0.001, FLT_MAX);
   if (h) {
     Scatter s = h.material->scatter(r, h);
+    vec3 emitted = h.material->emitted(h.uv, h.p);
     if (depth < MAX_DEPTH && s) {
-      return s.attenuation * color(s.scattered, world, depth + 1);
+      return emitted + s.attenuation * color(s.scattered, world, depth + 1);
     } else {
-      return vec3(0, 0, 0);
+      return emitted;
     }
   }
 
-  vec3 dir = unit(r.direction);
-  float t = 0.5 * (dir.y() + 1.0);
-  return (1.0 - t) * vec3(1., 1., 1.) + t * vec3(0.5, 0.7, 1.0);
+  return vec3(0, 0, 0);
+  // vec3 dir = unit(r.direction);
+  // float t = 0.5 * (dir.y() + 1.0);
+  // return (1.0 - t) * vec3(1., 1., 1.) + t * vec3(0.5, 0.7, 1.0);
 }
 
 extern "C" {
@@ -48,7 +50,7 @@ void setup(int width, int height, char* seedrandom) {
   while(*seedrandom) sr *= *seedrandom++;
 
   srand(sr);
-  scene = scene3(WIDTH, HEIGHT);
+  scene = sceneCornell(WIDTH, HEIGHT);
 
   srand(static_cast <unsigned> (time(0)));
 }
@@ -78,9 +80,9 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
       col /= float(sampling);
       col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-      ret[p++] = int(255.99 * col[0]);
-      ret[p++] = int(255.99 * col[1]);
-      ret[p++] = int(255.99 * col[2]);
+      ret[p++] = max(0, min(255, int(255.99 * col[0])));
+      ret[p++] = max(0, min(255, int(255.99 * col[1])));
+      ret[p++] = max(0, min(255, int(255.99 * col[2])));
       ret[p++] = 255;
     }
 

@@ -12,7 +12,7 @@ const startTime = performance.now();
 
 const WIDTH = 506 * 1; //1920 / 2;
 const HEIGHT = 253 * 1; // 1080 / 2;
-const SAMPLING = 100;
+const SAMPLING = 2500;
 const THREADS = navigator.hardwareConcurrency;
 const WORKSIZE = 25;
 const SEEDRANDOM = "world";

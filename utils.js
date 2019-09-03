@@ -232,7 +232,6 @@ class Mat4 extends Float32Array {
   }
 
   invert() {
-    const inv = new Mat4();
     const n11 = this[0], n21 = this[1], n31 = this[2], n41 = this[3],
       n12 = this[4], n22 = this[5], n32 = this[6], n42 = this[7],
       n13 = this[8], n23 = this[9], n33 = this[10], n43 = this[11],
@@ -252,7 +251,7 @@ class Mat4 extends Float32Array {
     if (det === 0) {
       // eslint-disable-next-line no-console
       console.error("mix.mat4.invert: can't invert matrix, determinant is 0");
-      return inv.identity();
+      return null;
     }
 
     const detInv = 1 / det;
@@ -288,7 +287,7 @@ class Mat4 extends Float32Array {
     this[15] = (n12 * n23 * n31 - n13 * n22 * n31 + n13 * n21 * n32 -
                 n11 * n23 * n32 - n12 * n21 * n33 + n11 * n22 * n33) * detInv;
 
-    return inv;
+    return this;
   }
 }
 

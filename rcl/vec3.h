@@ -6,7 +6,7 @@
 using namespace std;
 
 class vec3 {
- public:
+public:
   vec3() : vec3(0, 0, 0) {}
   vec3(float x, float y, float z) {
     e[0] = x;
