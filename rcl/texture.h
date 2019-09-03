@@ -6,17 +6,18 @@
 #include "utils.h"
 #include "vec3.h"
 #include "raytracer.h"
+#include "perlin.h"
 
 class Texture {
 public:
-  virtual vec3 value(float u, float v, const vec3& p) const = 0;
+  virtual vec3 value(vec3 uv, const vec3& p) const = 0;
 };
 
 class ConstantTexture : public Texture {
 public:
   ConstantTexture(float r, float g, float b) : color(r, g, b) { }
 
-  virtual vec3 value(float u, float v, const vec3& p) const {
+  virtual vec3 value(vec3 uv, const vec3& p) const {
     return color;
   }
   vec3 color;
@@ -27,19 +28,70 @@ public:
   CheckerTexture(shared_ptr<Texture> t0, shared_ptr<Texture> t1)
     : even(t0), odd(t1) { }
 
-  virtual vec3 value(float u, float v, const vec3& p) const {
+  virtual vec3 value(vec3 uv, const vec3& p) const {
     float sines = sin(10 * p.x())*sin(10 * p.y())*sin(10 * p.z());
     if (sines < 0) {
-      return odd->value(u, v, p);
+      return odd->value(uv, p);
     } else {
-      return even->value(u, v, p);
+      return even->value(uv, p);
     }
   }
 
   shared_ptr<Texture> even, odd;
 };
 
+class NoiseTexture : public Texture {
+public:
+  NoiseTexture(float scale) : scale(scale) {}
+  virtual vec3 value(vec3 uv, const vec3& p) const {
+    return vec3(1,1,1)*0.5*(1 + sin(scale*p.z() + 5*noise.turb(scale*p))) ;
+  }
 
+  Perlin noise;
+  float scale;
+};
+
+EM_JS(void, LoadImage, (const char* name, int size, void* ptr), {
+  self.LoadImage(name, size, ptr);
+});
+
+class ImageTexture : public Texture {
+public:
+  ImageTexture(string name) : data(nullptr) {
+    LoadImage(name.c_str(), name.length(), this);
+  }
+
+  virtual vec3 value(vec3 uv, const vec3& p) const {
+    if (!data) return vec3(0, 1, 0);
+    int i = uv[0] * width;
+    int j = (1 - uv[1]) * height - 0.001;
+    if (i < 0) i = 0;
+    if (j < 0) j = 0;
+    if (i >= width) i = width - 1;
+    if (j >= height) j = height - 1;
+    int ptr = 4 * (i + j * width);
+    return vec3(
+      int(data[ptr]) / 255.0,
+      int(data[ptr + 1]) / 255.0,
+      int(data[ptr + 2]) / 255.0);
+  }
+
+  unsigned char* data;
+  int width;
+  int height;
+};
+
+extern "C" {
+
+EMSCRIPTEN_KEEPALIVE
+void UploadImage(void* ptr, unsigned char* data, int width, int height) {
+  ImageTexture* it = static_cast<ImageTexture*>(ptr);
+  it->width = width;
+  it->height = height;
+  it->data = data;
+}
+
+} // extern
 
 struct Scatter {
   Ray scattered;
@@ -63,7 +115,7 @@ public:
 
   virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
     vec3 target = hit.p + hit.normal + randomInUnitSphere();
-    return Scatter{Ray(hit.p, target - hit.p), albedo->value(0, 0, hit.p)};
+    return Scatter{Ray(hit.p, target - hit.p), albedo->value(hit.uv, hit.p)};
   }
 
   shared_ptr<Texture> albedo;
@@ -77,7 +129,7 @@ public:
     vec3 reflected = reflect(unit(ray.direction), hit.normal);
     Ray scattered(hit.p, reflected + fuzz * randomInUnitSphere());
     if (dot(scattered.direction, hit.normal) > 0) {
-      return Scatter{scattered, albedo->value(0, 0, hit.p)};
+      return Scatter{scattered, albedo->value(hit.uv, hit.p)};
     }
     return NoScatter;
   }

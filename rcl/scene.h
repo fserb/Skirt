@@ -35,6 +35,30 @@ Scene scene1(int width, int height) {
   return Scene{bvh, camera};
 }
 
+Scene scene3(int width, int height) {
+  HitList world;
+
+  shared_ptr<Texture> pertext = make_shared<NoiseTexture>(5);
+
+  shared_ptr<Texture> earth = make_shared<ImageTexture>("./textures/2k_earth_daymap.jpg");
+
+  world.add(make_shared<Sphere>(vec3(0, -1000, 0), 1000,
+    make_shared<Lambertian>(pertext)));
+  world.add(make_shared<Sphere>(vec3(0, 2, 0), 2,
+    make_shared<Lambertian>(earth)));
+
+  vec3 lookfrom(13, 2, 3);
+  vec3 lookat(0, 0, 0);
+  float distToFocus = 10.0;
+  float aperture = 0.0;
+
+  Camera camera(lookfrom, lookat, vec3(0, 1, 0), 20, width / height, aperture, distToFocus);
+
+  shared_ptr<BVH> bvh(new BVH(world.list));
+  return Scene{bvh, camera};
+}
+
+
 Scene scene2(int width, int height) {
   HitList world;
 

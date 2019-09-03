@@ -21,15 +21,17 @@ public:
     float c = dot(oc, oc) - radius * radius;
     float disc = b * b - a * c;
     if (disc > 0) {
-      float tmp = (-b - sqrt(disc)) / a;
-      if (tmp > minT && tmp < maxT) {
-        vec3 rp = r.pointAt(tmp);
-        return Hit{tmp, rp, (rp - center) / radius, material};
+      float t = (-b - sqrt(disc)) / a;
+      if (t > minT && t < maxT) {
+        vec3 rp = r.pointAt(t);
+        vec3 normal = (rp - center) / radius;
+        return Hit{t, rp, normal, getSphereUV(normal), material};
       }
-      tmp = (-b + sqrt(disc)) / a;
-      if (tmp > minT && tmp < maxT) {
-        vec3 rp = r.pointAt(tmp);
-        return Hit{tmp, rp, (rp - center) / radius, material};
+      t = (-b + sqrt(disc)) / a;
+      if (t > minT && t < maxT) {
+        vec3 rp = r.pointAt(t);
+        vec3 normal = (rp - center) / radius;
+        return Hit{t, rp, normal, getSphereUV(normal), material};
       }
     }
     return NoHit;

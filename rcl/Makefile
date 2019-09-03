@@ -1,16 +1,14 @@
-DEPS = Makefile vec3.h raytracer.h objects.h utils.h texture.h scene.h
+DEPS = Makefile vec3.h raytracer.h objects.h utils.h texture.h scene.h \
+  perlin.h
 SRC = rcl.cpp
 OUTPUT = rcl.mjs
 ROOT = $(shell pwd)
 
 $(OUTPUT): $(SRC) $(DEPS)
 	emcc -o $(OUTPUT) \
-		-Oz \
-		-std=c++14 \
+		-Oz -std=c++14 \
 		-s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' \
-		-s MODULARIZE=1 \
-		-s EXPORT_ALL=1 \
-		-s EXPORT_ES6=1 \
+		-s MODULARIZE=1 -s EXPORT_ALL=1 -s EXPORT_ES6=1 \
 		$(SRC)
 
 clean:

@@ -51,6 +51,7 @@ struct Hit {
   float t;
   vec3 p;
   vec3 normal;
+  vec3 uv;
   shared_ptr<Material> material;
 
   operator bool() const {

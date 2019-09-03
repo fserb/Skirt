@@ -48,7 +48,7 @@ void setup(int width, int height, char* seedrandom) {
   while(*seedrandom) sr *= *seedrandom++;
 
   srand(sr);
-  scene = scene2(WIDTH, HEIGHT);
+  scene = scene3(WIDTH, HEIGHT);
 
   srand(static_cast <unsigned> (time(0)));
 }
@@ -75,11 +75,12 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
         col += color(r, *scene.world);
       }
 
-      col /= sampling;
+      col /= float(sampling);
+      col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 
-      ret[p++] = int(255.99 * sqrt(col.x()));
-      ret[p++] = int(255.99 * sqrt(col.y()));
-      ret[p++] = int(255.99 * sqrt(col.z()));
+      ret[p++] = int(255.99 * col[0]);
+      ret[p++] = int(255.99 * col[1]);
+      ret[p++] = int(255.99 * col[2]);
       ret[p++] = 255;
     }
 
@@ -92,7 +93,7 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
   double t = (time / std::chrono::microseconds(1)) / 1000.0;
   double ratio = width * height * sampling / t;
 
-  printf("Block took %.1fs or %.1f samples/ms\n", t / 1000.0, ratio);
+  // printf("Block took %.1fs or %.1f samples/ms\n", t / 1000.0, ratio);
 
   return ret;
 }
