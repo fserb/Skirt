@@ -3,6 +3,8 @@
 
 #include <cmath>
 
+using namespace std;
+
 class vec3 {
  public:
   vec3() : vec3(0, 0, 0) {}
@@ -99,6 +101,14 @@ inline vec3 operator*(const float t, const vec3& a) {
 }
 inline vec3 operator/(const float t, const vec3& a) {
   return vec3(a[0] / t, a[1] / t, a[2] / t);
+}
+
+inline vec3 min(const vec3& a, const vec3& b) {
+  return vec3(min(a[0], b[0]), min(a[1], b[1]), min(a[2], b[2]));
+}
+
+inline vec3 max(const vec3& a, const vec3& b) {
+  return vec3(max(a[0], b[0]), max(a[1], b[1]), max(a[2], b[2]));
 }
 
 inline float dot(const vec3& a, const vec3& b) {

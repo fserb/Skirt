@@ -13,7 +13,7 @@ const startTime = performance.now();
 const WIDTH = 506 * 1; //1920 / 2;
 const HEIGHT = 253 * 1; // 1080 / 2;
 const SAMPLING = 100;
-const THREADS = navigator.hardwareConcurrency;
+const THREADS = 1; //navigator.hardwareConcurrency;
 const WORKSIZE = 25;
 const SEEDRANDOM = "world";
 const WORKERS = [];
@@ -274,3 +274,9 @@ async function main() {
 }
 
 main();
+
+window.stop = function() {
+  for (let i = 0; i < WORKERS.length; ++i) {
+    WORKERS[i].terminate();
+  }
+};

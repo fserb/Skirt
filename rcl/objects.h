@@ -38,6 +38,10 @@ public:
     return NoHit;
   }
 
+  virtual const AABB bbox() const {
+    return AABB(center - radius, center + radius);
+  }
+
   vec3 center;
   float radius;
   shared_ptr<Material> material;
@@ -46,15 +50,20 @@ public:
 class HitList : public Hitable {
 public:
   HitList() { }
+  HitList(const HitList& l) {
+    for (const shared_ptr<Hitable>& obj : l.list) {
+      add(obj);
+    }
+  }
 
-  void add(shared_ptr<Sphere> a) {
+  void add(shared_ptr<Hitable> a) {
     list.push_back(a);
   }
 
   virtual Hit hit(const Ray& r, float minT, float maxT) const {
     Hit hit = NoHit;
     float closest = maxT;
-    for (const shared_ptr<Sphere>& obj : list) {
+    for (const shared_ptr<Hitable>& obj : list) {
       Hit h = obj->hit(r, minT, closest);
       if (h != NoHit) {
         hit = h;
@@ -65,8 +74,74 @@ public:
     return hit;
   }
 
-  vector<shared_ptr<Sphere>> list;
+  virtual const AABB bbox() const {
+    if (list.size() == 0) return AABB();
+    AABB ret;
+    for (const shared_ptr<Hitable>& obj : list) {
+      AABB b = obj->bbox();
+      if (!b) continue;
+      if (!ret) { ret = b; continue; }
+      ret = AABB(min(b.min, ret.min), max(b.max, ret.max));
+    }
+
+    return ret;
+  }
+
+  vector<shared_ptr<Hitable>> list;
   int size;
+};
+
+class BVH : public Hitable {
+public:
+  BVH() {}
+  BVH(vector<shared_ptr<Hitable>> list) {
+    int axis = floor(3 * frand());
+    sort(list.begin(), list.end(),
+      [axis](shared_ptr<Hitable> a, shared_ptr<Hitable> b) {
+        AABB bba = a->bbox();
+        AABB bbb = b->bbox();
+        return bba.min[axis] < bbb.min[axis];
+      });
+    if (list.size() == 1) {
+      left = right = list[0];
+    } else if (list.size() == 2) {
+      left = list[0];
+      right = list[1];
+    } else {
+      left = shared_ptr<Hitable>(new BVH(
+        vector<shared_ptr<Hitable>>(list.begin(), list.begin() + list.size() / 2)));
+      right = shared_ptr<Hitable>(new BVH(
+        vector<shared_ptr<Hitable>>(list.begin() + list.size() / 2, list.end())));
+    }
+
+    AABB bbl = left->bbox();
+    AABB bbr = right->bbox();
+
+    box = AABB(min(bbl.min, bbr.min), max(bbl.max, bbr.max));
+  }
+
+  virtual Hit hit(const Ray& r, float minT, float maxT) const {
+    if (box.hit(r, minT, maxT)) {
+      Hit leftHit = left->hit(r, minT, maxT);
+      Hit rightHit = right->hit(r, minT, maxT);
+      if (leftHit && rightHit) {
+        return leftHit.t < rightHit.t ? leftHit : rightHit;
+      } else if (leftHit) {
+        return leftHit;
+      } else if (rightHit) {
+        return rightHit;
+      }
+    }
+    return NoHit;
+  }
+
+  virtual const AABB bbox() const {
+    return box;
+  }
+
+  shared_ptr<Hitable> left;
+  shared_ptr<Hitable> right;
+  AABB box;
 };
 
 #endif // __OBJECTS_H__

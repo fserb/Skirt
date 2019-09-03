@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include <cfloat>
+#include <chrono>
 
 #include "utils.h"
 #include "vec3.h"
@@ -44,7 +45,7 @@ void setup(int width, int height, char* seedrandom) {
   HEIGHT = height;
 
   int sr = 0;
-  while(*seedrandom) sr += *seedrandom++;
+  while(*seedrandom) sr *= *seedrandom++;
 
   srand(sr);
   scene = scene2(WIDTH, HEIGHT);
@@ -54,6 +55,8 @@ void setup(int width, int height, char* seedrandom) {
 
 EMSCRIPTEN_KEEPALIVE
 unsigned char* render(int x0, int y0, int width, int height, int sampling) {
+  auto start_time = std::chrono::high_resolution_clock::now();
+
   sampling = max(1, sampling);
   unsigned char* ret = (unsigned char*)malloc(width * height * 4);
 
@@ -82,6 +85,15 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
 
   }
   assert(p == width * height * 4);
+
+  auto end_time = std::chrono::high_resolution_clock::now();
+  auto time = end_time - start_time;
+
+  double t = (time / std::chrono::microseconds(1)) / 1000.0;
+  double ratio = width * height * sampling / t;
+
+  printf("Block took %.1fs or %.1f samples/ms\n", t / 1000.0, ratio);
+
   return ret;
 }
 
