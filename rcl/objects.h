@@ -11,9 +11,6 @@ using namespace std;
 
 class Sphere : public Hitable {
 public:
-  static shared_ptr<Sphere> create(vec3 center, float r, shared_ptr<Material> mat) {
-    return shared_ptr<Sphere>(new Sphere(center, r, mat));
-  }
   Sphere() {}
   Sphere(vec3 center, float r, shared_ptr<Material> m)
     : center(center), radius(r), material(m) { }

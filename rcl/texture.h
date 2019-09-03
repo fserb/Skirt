@@ -1,9 +1,45 @@
 #ifndef __TEXTURE_H__
 #define __TEXTURE_H__
 
+#include <memory>
+
 #include "utils.h"
 #include "vec3.h"
 #include "raytracer.h"
+
+class Texture {
+public:
+  virtual vec3 value(float u, float v, const vec3& p) const = 0;
+};
+
+class ConstantTexture : public Texture {
+public:
+  ConstantTexture(float r, float g, float b) : color(r, g, b) { }
+
+  virtual vec3 value(float u, float v, const vec3& p) const {
+    return color;
+  }
+  vec3 color;
+};
+
+class CheckerTexture : public Texture {
+public:
+  CheckerTexture(shared_ptr<Texture> t0, shared_ptr<Texture> t1)
+    : even(t0), odd(t1) { }
+
+  virtual vec3 value(float u, float v, const vec3& p) const {
+    float sines = sin(10 * p.x())*sin(10 * p.y())*sin(10 * p.z());
+    if (sines < 0) {
+      return odd->value(u, v, p);
+    } else {
+      return even->value(u, v, p);
+    }
+  }
+
+  shared_ptr<Texture> even, odd;
+};
+
+
 
 struct Scatter {
   Ray scattered;
@@ -23,47 +59,35 @@ public:
 
 class Lambertian : public Material {
 public:
-  static shared_ptr<Lambertian> create(vec3 a) {
-    return shared_ptr<Lambertian>(new Lambertian(a));
-  }
-
-  Lambertian(const vec3& a) : albedo(a) { }
+  Lambertian(const shared_ptr<Texture> a) : albedo(a) { }
 
   virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
     vec3 target = hit.p + hit.normal + randomInUnitSphere();
-    return Scatter{Ray(hit.p, target - hit.p), albedo};
+    return Scatter{Ray(hit.p, target - hit.p), albedo->value(0, 0, hit.p)};
   }
 
-  vec3 albedo;
+  shared_ptr<Texture> albedo;
 };
 
 class Metal : public Material {
 public:
-  static shared_ptr<Metal> create(vec3 a, float f) {
-    return shared_ptr<Metal>(new Metal(a, f));
-  }
-
-  Metal(const vec3& a, float f) : albedo(a), fuzz(f) { }
+  Metal(const shared_ptr<Texture> a, float f) : albedo(a), fuzz(f) { }
 
   virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
     vec3 reflected = reflect(unit(ray.direction), hit.normal);
     Ray scattered(hit.p, reflected + fuzz * randomInUnitSphere());
     if (dot(scattered.direction, hit.normal) > 0) {
-      return Scatter{scattered, albedo};
+      return Scatter{scattered, albedo->value(0, 0, hit.p)};
     }
     return NoScatter;
   }
 
-  vec3 albedo;
+  const shared_ptr<Texture> albedo;
   float fuzz;
 };
 
 class Dielectric : public Material {
 public:
-  static shared_ptr<Dielectric> create(float ri) {
-    return shared_ptr<Dielectric>(new Dielectric(ri));
-  }
-
   Dielectric(float ri) : refidx(ri) { }
 
   float schlick(float cosine, float refIdx) const {

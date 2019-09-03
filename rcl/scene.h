@@ -15,11 +15,14 @@ struct Scene {
 Scene scene1(int width, int height) {
   HitList world;
 
-  world.add(Sphere::create(vec3(0, 0, -1), 0.5, Lambertian::create(vec3(0.1, 0.2, 0.5))));
-  world.add(Sphere::create(vec3(0, -100.5, -1), 100, Lambertian::create(vec3(0.8, 0.8, 0.0))));
-  world.add(Sphere::create(vec3(1, 0, -1), 0.5, Metal::create(vec3(0.8, 0.6, 0.2), 0.0)));
-  world.add(Sphere::create(vec3(-1, 0, -1), 0.5, Dielectric::create(1.5)));
-  world.add(Sphere::create(vec3(-1, 0, -1), -0.45, Dielectric::create(1.5)));
+  world.add(make_shared<Sphere>(vec3(0, 0, -1), 0.5,
+    make_shared<Lambertian>(make_shared<ConstantTexture>(0.1, 0.2, 0.5))));
+  world.add(make_shared<Sphere>(vec3(0, -100.5, -1), 100,
+    make_shared<Lambertian>(make_shared<ConstantTexture>(0.8, 0.8, 0.0))));
+  world.add(make_shared<Sphere>(vec3(1, 0, -1), 0.5,
+    make_shared<Metal>(make_shared<ConstantTexture>(0.8, 0.6, 0.2), 0.0)));
+  world.add(make_shared<Sphere>(vec3(-1, 0, -1), 0.5, make_shared<Dielectric>(1.5)));
+  world.add(make_shared<Sphere>(vec3(-1, 0, -1), -0.45, make_shared<Dielectric>(1.5)));
 
   vec3 lookfrom(3, 3, 2);
   vec3 lookat(0, 0, -1);
@@ -35,7 +38,12 @@ Scene scene1(int width, int height) {
 Scene scene2(int width, int height) {
   HitList world;
 
-  world.add(Sphere::create(vec3(0, -1000, 0), 1000, Lambertian::create(vec3(0.5, 0.5, 0.5))));
+  shared_ptr<Texture> checker(make_shared<CheckerTexture>(
+    make_shared<ConstantTexture>(0.2, 0.3, 0.1),
+    make_shared<ConstantTexture>(0.9, 0.9, 0.9)));
+
+  world.add(make_shared<Sphere>(vec3(0, -1000, 0), 1000,
+    make_shared<Lambertian>(checker)));
 
   for (int a = -11; a < 11; ++a) {
     for (int b = -11; b < 11; ++b) {
@@ -43,24 +51,27 @@ Scene scene2(int width, int height) {
       vec3 center(a + 0.9 * frand(), 0.2, b + 0.9 * frand());
       if ((center - vec3(4, 0, 2.0)).length() > 0.9) {
         if (mat < 0.8) {
-          world.add(Sphere::create(center, 0.2,
-            Lambertian::create(vec3(frand() * frand(), frand() * frand(), frand() * frand()))));
+          world.add(make_shared<Sphere>(center, 0.2,
+            make_shared<Lambertian>(
+              make_shared<ConstantTexture>(frand() * frand(), frand() * frand(), frand() * frand()))));
         } else if (mat < 0.95) {
-          world.add(Sphere::create(center, 0.2,
-            Metal::create(vec3(
+          world.add(make_shared<Sphere>(center, 0.2,
+            make_shared<Metal>(make_shared<ConstantTexture>(
               0.5 * (1 + frand()),
               0.5 * (1 + frand()),
               0.5 * (1 + frand())), 0.5 * frand())));
         } else {
-          world.add(Sphere::create(center, 0.2, Dielectric::create(1.5)));
+          world.add(make_shared<Sphere>(center, 0.2, make_shared<Dielectric>(1.5)));
         }
       }
     }
   }
 
-  world.add(Sphere::create(vec3(0, 1, 0), 1.0, Dielectric::create(1.5)));
-  world.add(Sphere::create(vec3(-4, 1, 0), 1.0, Lambertian::create(vec3(0.4, 0.2, 0.1))));
-  world.add(Sphere::create(vec3(4, 1, 0), 1.0, Metal::create(vec3(0.7, 0.6, 0.5), 0.0)));
+  world.add(make_shared<Sphere>(vec3(0, 1, 0), 1.0, make_shared<Dielectric>(1.5)));
+  world.add(make_shared<Sphere>(vec3(-4, 1, 0), 1.0,
+    make_shared<Lambertian>(make_shared<ConstantTexture>(0.4, 0.2, 0.1))));
+  world.add(make_shared<Sphere>(vec3(4, 1, 0), 1.0,
+    make_shared<Metal>(make_shared<ConstantTexture>(0.7, 0.6, 0.5), 0.0)));
 
   vec3 lookfrom(13, 2, 3);
   vec3 lookat(0, 0, -1);
