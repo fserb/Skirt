@@ -12,10 +12,13 @@
 #include "objects.h"
 #include "texture.h"
 
+#include "scene.h"
+
 using namespace std;
 
 int WIDTH, HEIGHT;
 const int MAX_DEPTH = 50;
+Scene scene;
 
 vec3 color(const Ray& r, Hitable& world, int depth=0) {
   Hit h = world.hit(r, 0.001, FLT_MAX);
@@ -36,33 +39,23 @@ vec3 color(const Ray& r, Hitable& world, int depth=0) {
 extern "C" {
 
 EMSCRIPTEN_KEEPALIVE
-void setup(int width, int height, string seedrandom) {
+void setup(int width, int height, char* seedrandom) {
   WIDTH = width;
   HEIGHT = height;
 
-  srand (static_cast <unsigned> (time(0)));
+  int sr = 0;
+  while(*seedrandom) sr += *seedrandom++;
 
+  srand(sr);
+  scene = scene2(WIDTH, HEIGHT);
+
+  srand(static_cast <unsigned> (time(0)));
 }
 
 EMSCRIPTEN_KEEPALIVE
 unsigned char* render(int x0, int y0, int width, int height, int sampling) {
   sampling = max(1, sampling);
   unsigned char* ret = (unsigned char*)malloc(width * height * 4);
-
-  vec3 llc(-2., -1., -1.);
-  vec3 hor(4., 0., 0.);
-  vec3 ver(0., 2., 0.);
-  vec3 origin(0., 0., 0.);
-
-  HitList world;
-
-  world.add(Sphere::create(vec3(0, 0, -1), 0.5, Lambertian::create(vec3(0.1, 0.2, 0.5))));
-  world.add(Sphere::create(vec3(0, -100.5, -1), 100, Lambertian::create(vec3(0.8, 0.8, 0.0))));
-  world.add(Sphere::create(vec3(1, 0, -1), 0.5, Metal::create(vec3(0.8, 0.6, 0.2), 0.0)));
-  world.add(Sphere::create(vec3(-1, 0, -1), 0.5, Dielectric::create(1.5)));
-  world.add(Sphere::create(vec3(-1, 0, -1), -0.45, Dielectric::create(1.5)));
-
-  Camera cam;
 
   int p = 0;
   for (int j = height - 1; j >= 0; --j) {
@@ -75,8 +68,8 @@ unsigned char* render(int x0, int y0, int width, int height, int sampling) {
         float u = float(x + frand()) / WIDTH;
         float v = float(y + frand()) / HEIGHT;
 
-        Ray r = cam.getRay(u, v);
-        col += color(r, world);
+        Ray r = scene.camera.getRay(u, v);
+        col += color(r, *scene.world);
       }
 
       col /= sampling;
