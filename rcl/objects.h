@@ -2,6 +2,7 @@
 #define __OBJECTS_H__
 
 #include <limits>
+#include <cmath>
 
 #include "vec3.h"
 #include "mat4.h"
@@ -27,6 +28,39 @@ public:
   }
 
   shared_ptr<Hitable> obj;
+};
+
+class ConstantMedium : public Hitable {
+public:
+  ConstantMedium(shared_ptr<Hitable> boundary, float density, const shared_ptr<Texture> texture)
+    : boundary(boundary), density(density), phase(make_shared<Isotropic>(texture)) { }
+
+  virtual Hit hit(const Ray& r, float minT, float maxT) const {
+    Hit rec1 = boundary->hit(r, -numeric_limits<float>::max(), numeric_limits<float>::max());
+    if (!rec1) return NoHit;
+    Hit rec2 = boundary->hit(r, rec1.t + 0.0001, numeric_limits<float>::max());
+    if (!rec2) return NoHit;
+
+    rec1.t = max(minT, rec1.t);
+    rec2.t = min(maxT, rec2.t);
+    if (rec1.t >= rec2.t) return NoHit;
+    rec1.t = max(0.0f, rec1.t);
+
+    float distInsideBoundary = (rec2.t - rec1.t) * r.direction.length();
+    float hitDistance = -(1 / density) * log(frand());
+    if (hitDistance >= distInsideBoundary) return NoHit;
+
+    float t = rec1.t + hitDistance / r.direction.length();
+    return Hit{t, r.pointAt(t), vec3(1, 0, 0), vec3(), phase};
+  }
+
+  virtual const AABB bbox() const {
+    return boundary->bbox();
+  }
+
+  shared_ptr<Hitable> boundary;
+  float density;
+  shared_ptr<Material> phase;
 };
 
 class RectXY : public Hitable {

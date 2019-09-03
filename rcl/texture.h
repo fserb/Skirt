@@ -112,6 +112,18 @@ public:
   }
 };
 
+class Isotropic : public Material {
+public:
+  Isotropic(const shared_ptr<Texture> a) : albedo(a) { }
+
+  virtual Scatter scatter(const Ray& ray, const Hit& hit) const {
+    return Scatter{Ray(hit.p, randomInUnitSphere()),
+      albedo->value(hit.uv, hit.p)};
+  }
+
+  shared_ptr<Texture> albedo;
+};
+
 class DiffuseLight : public Material {
 public:
   DiffuseLight(const shared_ptr<Texture> a) : emit(a) { }

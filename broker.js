@@ -10,11 +10,11 @@ const mode = (() => {
 
 const startTime = performance.now();
 
-const WIDTH = 506 * 1; //1920 / 2;
-const HEIGHT = 253 * 1; // 1080 / 2;
-const SAMPLING = 2500;
-const THREADS = navigator.hardwareConcurrency;
-const WORKSIZE = 25;
+const WIDTH = 506 * 2; //1920 / 2;
+const HEIGHT = 253 * 2; // 1080 / 2;
+const SAMPLING = 10000;
+const THREADS = 5; navigator.hardwareConcurrency;
+const WORKSIZE = 5;
 const SEEDRANDOM = "world";
 const WORKERS = [];
 let CODEHASH = "";

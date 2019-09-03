@@ -251,6 +251,8 @@ function _setup5(width, height, RNG) {
 
   world.push(new Sphere(v3.new(400, 400, 200), 50,
     new Lambertian(new ConstantTexture(0.7, 0.3, 0.1))));
+
+
   world.push(new Sphere(v3.new(260, 150, 45), 50, new Dielectric(1.5)));
   world.push(new Sphere(v3.new(0, 150, 145), 50,
     new Metal(new ConstantTexture(0.8, 0.8, 0.9), 10.0)));

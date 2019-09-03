@@ -50,7 +50,7 @@ void setup(int width, int height, char* seedrandom) {
   while(*seedrandom) sr *= *seedrandom++;
 
   srand(sr);
-  scene = sceneCornell(WIDTH, HEIGHT);
+  scene = sceneWeek(WIDTH, HEIGHT);
 
   srand(static_cast <unsigned> (time(0)));
 }
