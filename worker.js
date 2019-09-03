@@ -33,7 +33,14 @@ function color(ray, world, depth) {
       return emitted;
     }
   }
-  return v3.new(0, 0, 0);
+
+  // return v3.new(0, 0, 0);
+
+  const dir = v3.unit(ray.direction);
+  const t = 0.5 * (dir.y + 1.0);
+  return v3.new((1.0 - t) + t * 0.5,
+      (1.0 - t) + t * 0.7,
+      (1.0 - t) + t * 1.0);
 }
 
 function render(data, info) {

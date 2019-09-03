@@ -7,6 +7,29 @@ import {Lambertian, Metal, Dielectric,
   DiffuseLight
 } from "./texture.js";
 
+export default function(width, height, _RNG) {
+  const world = new HitList();
+
+
+  world.push(new Sphere(v3.new(0, 0, -1), 0.5, new Lambertian(new ConstantTexture(0.8, 0.3, 0.3))));
+  world.push(new Sphere(v3.new(0, -100.5, -1), 100, new Lambertian(new ConstantTexture(0.8, 0.8, 0.0))));
+  world.push(new Sphere(v3.new(1, 0, -1), 0.5, new Metal(new ConstantTexture(0.8, 0.6, 0.2))));
+  world.push(new Sphere(v3.new(-1, 0, -1), 0.5, new Metal(new ConstantTexture(0.8, 0.8, 0.8))));
+
+
+  const lookfrom = v3.new(3, 3, 2);
+  const lookat = v3.new(0, 0, -1);
+  const distToFocus = v3.sub(lookfrom, lookat).len;
+
+  const camera = new Camera(
+    lookfrom, lookat,
+    v3.new(0, 1, 0),
+    20, width / height, 2.0, distToFocus);
+
+  return [world, camera];
+}
+
+
 function _setup1(width, height, _RNG) {
   const world = new HitList();
 
@@ -199,7 +222,7 @@ function _setup4(width, height, _RNG) {
   return [world, camera];
 }
 
-export default function _setup5(width, height, RNG) {
+function _setup5(width, height, RNG) {
   let world = new HitList();
 
   const white = new Lambertian(new ConstantTexture(0.73, 0.73, 0.73));

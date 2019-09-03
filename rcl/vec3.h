@@ -16,6 +16,8 @@ class vec3 {
   inline float y() const { return e[1]; }
   inline float z() const { return e[2]; }
 
+  explicit operator bool() const { return e[0] || e[1] || e[2]; }
+
   inline const vec3& operator+() const { return *this; }
   inline vec3 operator-() const { return vec3(-e[0], -e[1], -e[2]); }
   inline float operator[](int i) const { return e[i]; }
@@ -111,6 +113,18 @@ inline vec3 cross(const vec3& a, const vec3& b) {
 
 inline vec3 unit(const vec3& v) {
   return v / v.length();
+}
+
+inline vec3 reflect(const vec3& v, const vec3& n) {
+  return v - (2 * dot(v, n)) * n;
+}
+
+inline vec3 refract(const vec3& v, const vec3& normal, float nint) {
+  vec3 uv = unit(v);
+  float dt = dot(uv, normal);
+  float discr = 1.0 - nint * nint * (1 - dt * dt);
+  if (discr <= 0) return vec3(0, 0, 0);
+  return nint * (uv - normal * dt) - normal * sqrt(discr);
 }
 
 inline std::ostream& operator<<(std::ostream& os, const vec3& t) {

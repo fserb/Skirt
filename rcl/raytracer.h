@@ -5,6 +5,10 @@
 
 #include "vec3.h"
 
+using namespace std;
+
+class Material;
+
 class Ray {
 public:
   Ray() {}
@@ -41,19 +45,24 @@ struct Hit {
   float t;
   vec3 p;
   vec3 normal;
+  shared_ptr<Material> material;
+
+  operator bool() const {
+    return normal[0] != 0 || normal[1] != 0 || normal[2] != 0;
+  }
 };
 
 Hit NoHit{0, vec3(0, 0, 0), vec3(0, 0, 0)};
 
-bool operator==(const Hit& a, const Hit& b) {
-  return a.normal[0] == b.normal[0] && a.normal[1] == b.normal[1] &&
-    a.normal[2] == b.normal[2] && a.p[0] == b.p[0] && a.p[1] == b.p[1] &&
-    a.p[2] == b.p[2] && a.t == b.t;
-}
 
-bool operator!=(const Hit& a, const Hit& b) {
-  return !(a == b);
-}
+// bool operator==(const Hit& a, const Hit& b) {
+//   return a.normal[0] == b.normal[0] && a.normal[1] == b.normal[1] &&
+//     a.normal[2] == b.normal[2] && a.p[0] == b.p[0] && a.p[1] == b.p[1] &&
+//     a.p[2] == b.p[2] && a.t == b.t;
+// }
+// bool operator!=(const Hit& a, const Hit& b) {
+//   return !(a == b);
+// }
 
 class Hitable {
 public:

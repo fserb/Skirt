@@ -9,7 +9,13 @@ inline float frand() {
 
 vec3 randomInUnitSphere() {
   vec3 p = unit(vec3(frand(), frand(), frand())) * cbrt(frand());
-  return 2 * p - 1;
+  return (p * 2.0) - 1.0;
+}
+
+vec3 randomInUnitDisk() {
+  float r = sqrt(frand());
+  float t = frand() * 2. * M_PI;
+  return vec3(r * cos(t), r * sin(t), 0.0);
 }
 
 #endif

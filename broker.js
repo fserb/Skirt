@@ -8,13 +8,13 @@ const mode = (() => {
   return "single";
 })();
 
-const WIDTH = 506 * 2; //1920 / 2;
-const HEIGHT = 253 * 2; // 1080 / 2;
+const startTime = performance.now();
+
+const WIDTH = 506 * 1; //1920 / 2;
+const HEIGHT = 253 * 1; // 1080 / 2;
 const SAMPLING = 100;
-const THREADS = Math.ceil(Math.max(1, navigator.platform == "MacIntel" ?
-  navigator.hardwareConcurrency / 2:
-  navigator.hardwareConcurrency));
-const WORKSIZE = 100;
+const THREADS = navigator.hardwareConcurrency;
+const WORKSIZE = 25;
 const SEEDRANDOM = "world";
 const WORKERS = [];
 let CODEHASH = "";
@@ -148,8 +148,11 @@ async function clientGetJob() {
 /* eslint-disable no-console */
 
 async function updateWorkers() {
+  let allFree = true;
+
   for (let i = 0; i < WORKERS.length; ++i) {
     if (WORKERS[i].state == "busy") {
+      allFree = false;
       if (mode == "client") {
         await bs.touch(WORKERS[i].jobid);
       }
@@ -171,7 +174,14 @@ async function updateWorkers() {
       WORKERS[i].postMessage({type: "work", id: job.id, info: job.data});
       WORKERS[i].state = "busy";
       WORKERS[i].jobid = job.id;
+      allFree = false;
     }
+  }
+
+  if (mode == "single" && allFree) {
+    const t = performance.now();
+    const delta = (t - startTime) / 1000;
+    console.log("Finish time: " + Math.round(delta * 10) / 10 + "s");
   }
 }
 
@@ -254,7 +264,9 @@ async function main() {
     // spawn workers
     await createWorkers();
     await updateWorkers();
+  }
 
+  if (mode == "client") {
     setInterval(async () => {
       await updateWorkers();
     }, 1000);

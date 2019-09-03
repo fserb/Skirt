@@ -5,16 +5,18 @@
 
 #include "vec3.h"
 #include "raytracer.h"
+#include "texture.h"
 
 using namespace std;
 
 class Sphere : public Hitable {
 public:
-  static shared_ptr<Sphere> create(vec3 center, float r) {
-    return shared_ptr<Sphere>(new Sphere(center, r));
+  static shared_ptr<Sphere> create(vec3 center, float r, shared_ptr<Material> mat) {
+    return shared_ptr<Sphere>(new Sphere(center, r, mat));
   }
   Sphere() {}
-  Sphere(vec3 center, float r) : center(center), radius(r) { }
+  Sphere(vec3 center, float r, shared_ptr<Material> m)
+    : center(center), radius(r), material(m) { }
   virtual Hit hit(const Ray& r, float minT, float maxT) const {
     vec3 oc = r.origin - center;
     float a = dot(r.direction, r.direction);
@@ -25,12 +27,12 @@ public:
       float tmp = (-b - sqrt(disc)) / a;
       if (tmp > minT && tmp < maxT) {
         vec3 rp = r.pointAt(tmp);
-        return Hit{tmp, rp, (rp - center) / radius};
+        return Hit{tmp, rp, (rp - center) / radius, material};
       }
       tmp = (-b + sqrt(disc)) / a;
       if (tmp > minT && tmp < maxT) {
         vec3 rp = r.pointAt(tmp);
-        return Hit{tmp, rp, (rp - center) / radius};
+        return Hit{tmp, rp, (rp - center) / radius, material};
       }
     }
     return NoHit;
@@ -38,6 +40,7 @@ public:
 
   vec3 center;
   float radius;
+  shared_ptr<Material> material;
 };
 
 class HitList : public Hitable {
