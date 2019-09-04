@@ -18,7 +18,7 @@
 using namespace std;
 
 int WIDTH, HEIGHT;
-const int MAX_DEPTH = 50;
+const int MAX_DEPTH = 20;
 Scene scene;
 
 vec3 color(const Ray& r, Hitable& world, int depth=0) {
@@ -26,6 +26,7 @@ vec3 color(const Ray& r, Hitable& world, int depth=0) {
   if (h) {
     Scatter s = h.material->scatter(r, h);
     vec3 emitted = h.material->emitted(h.uv, h.p);
+
     if (depth < MAX_DEPTH && s) {
       return emitted + s.attenuation * color(s.scattered, world, depth + 1);
     } else {

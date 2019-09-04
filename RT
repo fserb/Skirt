@@ -1,14 +1,15 @@
 RayTracer
 =========
 
-- multi renderer distribution with peer.js
-
 - 3rd book
-- webassembly tracer?
 - progressive scans
+- progressive focus on biggest area change
 
-- gpu.js ? http://gpu.rocks/
 
+- PBRT format
+- localstorage stateful
+
+- progress: MRays/s, total rays, etc.
 
 
 Distributed
@@ -22,6 +23,25 @@ aurora
 
 References
 ----------
+https://blog.demofox.org/2016/09/21/path-tracing-getting-started-with-diffuse-and-emissive/
+https://aras-p.info/blog/2018/03/28/Daily-Pathtracer-Part-0-Intro/
+https://aras-p.info/blog/2018/08/01/Pathtracer-15-Pause-Links/
+https://aras-p.info/blog/2018/11/16/Pathtracer-17-WebAssembly/
+https://psgraphics.blogspot.com/
+https://graphics.pixar.com/library/ProgressiveMultiJitteredSampling/paper.pdf
 
+http://www.kevinbeason.com/smallpt/
 https://tmcw.github.io/literate-raytracer/
 https://github.com/erichlof/THREE.js-PathTracing-Renderer/tree/gh-pages/js
+
+http://www.pbr-book.org/3ed-2018/contents.html
+http://www.realtimerendering.com/intersections.html
+
+Scenes
+------
+
+http://www.graphics.cornell.edu/online/box/data.html
+
+https://www.technology.disneyanimation.com/islandscene
+https://pbrt.org/scenes-v3.html
+https://pbrt.org/fileformat-v3.html
