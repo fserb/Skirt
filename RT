@@ -1,5 +1,6 @@
-RayTracer
-=========
+
+skirt
+=====
 
 GOALS
 - a 1st-class raytracer on the browser
@@ -7,7 +8,7 @@ GOALS
 - wasm and native binaries
 
 - interface with progress
-- HDR visualization
+- PFM visualization
 - PBRT format
 
 - rendering test vs PBRT, https://www.mitsuba-renderer.org/,
@@ -39,6 +40,8 @@ http://www.pbr-book.org/3ed-2018/contents.html
 http://www.realtimerendering.com/intersections.html
 
 http://netpbm.sourceforge.net/doc/pfm.html
+
+https://github.com/dannyfritz/awesome-ray-tracing
 
 Scenes
 ------

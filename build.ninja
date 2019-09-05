@@ -4,7 +4,6 @@ ninja_required_version = 1.9.0
 builddir = build
 emcc = emcc
 cc = clang++
-ld = ld
 ccflags = -O3 -std=c++14 -ffast-math
 ldflags = -flto
 
@@ -16,7 +15,7 @@ rule emcc
     -s MODULARIZE=1 -s EXPORT_ALL=1 -s EXPORT_ES6=1 -c $in -o $out
 
 rule emlink
-  command = $emcc $ldflags $in -o $out
+  command = $emcc $ldflags -flto $in -o $out
 
 rule cc
   depfile = ${out}.d
@@ -25,16 +24,18 @@ rule cc
     -c $in -o $out
 
 rule link
-  command = $ld $ldflags $in -o $out
+  command = $cc $ldflags $in -o $out
 
 
-build build/rcl.bc: emcc rcl/rcl.cpp
-build bin/rcl.mjs | bin/rcl.wasm: emlink build/rcl.bc
-build wasm: phony bin/rcl.mjs
+build build/main.bc: emcc src/core/main.cpp
 
-build build/rcl.o: cc rcl/rcl.cpp
-build bin/rcl: link build/rcl.o
-build native: phony bin/rcl
+build bin/skirt.mjs | bin/skirt.wasm: emlink build/main.bc
+build wasm: phony bin/skirt.mjs
+
+build build/main.o: cc src/core/main.cpp
+
+build bin/skirt: link build/main.o
+build native: phony bin/skirt
 
 build all: phony native wasm
 
