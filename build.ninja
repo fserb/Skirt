@@ -1,5 +1,3 @@
-# build.ninja
-
 ninja_required_version = 1.9.0
 builddir = build
 emcc = emcc
@@ -7,36 +5,45 @@ cc = clang++
 ccflags = -O3 -std=c++14 -ffast-math
 ldflags = -flto
 
+rule ninjagen
+  generator = true
+  description = generating build.ninja
+  command = ./ninjagen.sh
+
+build build build/force: ninjagen ./ninjagen.sh
+
 rule emcc
-  depfile = ${out}.d
+  description = emcc $in
+  depfile = $out.d
   deps = gcc
-  command = $emcc $ccflags -MMD -MF ${out}.d --llvm-lto 3 $
+  command = $emcc $ccflags -MMD -MF $out.d --llvm-lto 3 $
     -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' $
     -s MODULARIZE=1 -s EXPORT_ALL=1 -s EXPORT_ES6=1 -c $in -o $out
 
 rule emlink
+  description = emcc linking $out
   command = $emcc $ldflags -flto $in -o $out
 
 rule cc
-  depfile = ${out}.d
+  description = clang $in
+  depfile = $out.d
   deps = gcc
-  command = $cc $ccflags -MMD -MF ${out}.d -flto $
+  command = $cc $ccflags -MMD -MF $out.d -flto $
     -c $in -o $out
 
 rule link
+  description = clang linking $out
   command = $cc $ldflags $in -o $out
 
+build build/core/main.bc: emcc src/core/main.cpp
+build build/core/main.o: cc src/core/main.cpp
 
-build build/main.bc: emcc src/core/main.cpp
+build bin/skirt.mjs | bin/skirt.wasm: emlink build/core/main.bc 
 
-build bin/skirt.mjs | bin/skirt.wasm: emlink build/main.bc
+build bin/skirt: link build/core/main.o 
+
 build wasm: phony bin/skirt.mjs
-
-build build/main.o: cc src/core/main.cpp
-
-build bin/skirt: link build/main.o
 build native: phony bin/skirt
-
 build all: phony native wasm
 
-default wasm
+default all
