@@ -16,11 +16,6 @@ GOALS
 - progress: MRays/s, total rays, etc.
 
 
-DESIGN
-- WASM/native multithreaded raytracer
-- scene description, hash, area
-
-
 TODO
 - 3rd book
 
@@ -33,7 +28,6 @@ https://aras-p.info/blog/2018/08/01/Pathtracer-15-Pause-Links/
 https://psgraphics.blogspot.com/
 https://graphics.pixar.com/library/ProgressiveMultiJitteredSampling/paper.pdf
 http://www.codinglabs.net/article_physically_based_rendering.aspx
-
 
 https://smerity.com/montelight-cpp/
 http://www.kevinbeason.com/smallpt/

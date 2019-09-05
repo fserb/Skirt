@@ -49,38 +49,5 @@ body {
 <div id=progressbar><div id=progress></div></div>
 <div id=stat></div>
 
-<script src="node_modules/js-sha1/build/sha1.min.js"></script>
-
-<script>
-const FILES = ["broker.js", "index.html", "bs.js", "object.js",
-  "raytracer.js", "texture.js", "utils.js", "worker.js", "scene.js"];
-
-window.genCodehash = async function() {
-  return Promise.all(
-    FILES.map(file => fetch(file).then(req => req.text()))).then(text => {
-    const hash = window.sha1.create();
-    for (let f = 0; f < text.length; ++f) {
-      hash.update(text[f]);
-    }
-    return hash.hex();
-  });
-};
-
-</script>
-
-<script type='module' src="broker.js"></script>
-
-<script type='preload' src='worker.js'></script>
-<script type='preload' src='worker_rcl.js'></script>
-<script type='preload' src='utils.js'></script>
-<script type='preload' src='raytracer.js'></script>
-<script type='preload' src='texture.js'></script>
-<script type='preload' src='object.js'></script>
-<script type='preload' src='scene.js'></script>
-<script type='preload' src='rcl/rcl.mjs'></script>
-<script type='preload' src='rcl/rcl.wasm'></script>
-
-<script type='preload' src='bs.js'></script>
-
 </body>
 </html>
