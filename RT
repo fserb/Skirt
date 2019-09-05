@@ -1,6 +1,17 @@
 RayTracer
 =========
 
+GOALS
+- a 1st class raytracer on the browser
+-
+
+
+TODO
+- use ninja build
+
+- web-side server, talk to ws clients or webworker
+
+
 - 3rd book
 - progressive scans
 - progressive focus on biggest area change
@@ -12,36 +23,46 @@ RayTracer
 - progress: MRays/s, total rays, etc.
 
 
-Distributed
------------
-beanstalkd
-npx wsproxy -p 5999 -a 127.0.0.1:11300
-aurora
 
 
+Reference rendering with PBRT or https://www.mitsuba-renderer.org/
+or https://luxcorerender.org/
 
 
 References
 ----------
-https://blog.demofox.org/2016/09/21/path-tracing-getting-started-with-diffuse-and-emissive/
-https://aras-p.info/blog/2018/03/28/Daily-Pathtracer-Part-0-Intro/
 https://aras-p.info/blog/2018/08/01/Pathtracer-15-Pause-Links/
-https://aras-p.info/blog/2018/11/16/Pathtracer-17-WebAssembly/
 https://psgraphics.blogspot.com/
 https://graphics.pixar.com/library/ProgressiveMultiJitteredSampling/paper.pdf
+http://www.codinglabs.net/article_physically_based_rendering.aspx
 
+
+https://smerity.com/montelight-cpp/
 http://www.kevinbeason.com/smallpt/
+https://github.com/hi2p-perim/minpt
 https://tmcw.github.io/literate-raytracer/
 https://github.com/erichlof/THREE.js-PathTracing-Renderer/tree/gh-pages/js
 
 http://www.pbr-book.org/3ed-2018/contents.html
 http://www.realtimerendering.com/intersections.html
 
+http://netpbm.sourceforge.net/doc/pfm.html
+
 Scenes
 ------
+https://www.merl.com/brdf/
+http://people.csail.mit.edu/addy/research/brdf/
 
+http://casual-effects.com/data/
 http://www.graphics.cornell.edu/online/box/data.html
 
 https://www.technology.disneyanimation.com/islandscene
 https://pbrt.org/scenes-v3.html
 https://pbrt.org/fileformat-v3.html
+
+
+Distributed
+-----------
+beanstalkd
+npx wsproxy -p 5999 -a 127.0.0.1:11300
+aurora

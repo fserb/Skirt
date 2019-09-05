@@ -1,0 +1,41 @@
+# build.ninja
+
+ninja_required_version = 1.9.0
+builddir = build
+emcc = emcc
+cc = clang++
+ld = ld
+ccflags = -O3 -std=c++14 -ffast-math
+ldflags = -flto
+
+rule emcc
+  depfile = ${out}.d
+  deps = gcc
+  command = $emcc $ccflags -MMD -MF ${out}.d --llvm-lto 3 $
+    -s EXTRA_EXPORTED_RUNTIME_METHODS='["ccall", "cwrap"]' $
+    -s MODULARIZE=1 -s EXPORT_ALL=1 -s EXPORT_ES6=1 -c $in -o $out
+
+rule emlink
+  command = $emcc $ldflags $in -o $out
+
+rule cc
+  depfile = ${out}.d
+  deps = gcc
+  command = $cc $ccflags -MMD -MF ${out}.d -flto $
+    -c $in -o $out
+
+rule link
+  command = $ld $ldflags $in -o $out
+
+
+build build/rcl.bc: emcc rcl/rcl.cpp
+build bin/rcl.mjs | bin/rcl.wasm: emlink build/rcl.bc
+build wasm: phony bin/rcl.mjs
+
+build build/rcl.o: cc rcl/rcl.cpp
+build bin/rcl: link build/rcl.o
+build native: phony bin/rcl
+
+build all: phony native wasm
+
+default wasm

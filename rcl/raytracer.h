@@ -2,7 +2,9 @@
 #define __RAY_H__
 
 #include <vector>
+#ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+#endif
 
 #include "vec3.h"
 
