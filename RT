@@ -2,31 +2,29 @@ RayTracer
 =========
 
 GOALS
-- a 1st class raytracer on the browser
--
+- a 1st-class raytracer on the browser
+- can accept external client via WS
+- wasm and native binaries
 
-
-TODO
-- use ninja build
-
-- web-side server, talk to ws clients or webworker
-
-
-- 3rd book
-- progressive scans
-- progressive focus on biggest area change
-
-
+- interface with progress
+- HDR visualization
 - PBRT format
-- localstorage stateful
+
+- rendering test vs PBRT, https://www.mitsuba-renderer.org/,
+  https://luxcorerender.org
 
 - progress: MRays/s, total rays, etc.
 
 
+DESIGN
+- WASM/native multithreaded raytracer
+- scene description, hash, area
 
 
-Reference rendering with PBRT or https://www.mitsuba-renderer.org/
-or https://luxcorerender.org/
+TODO
+- 3rd book
+
+- localstorage stateful
 
 
 References
@@ -60,9 +58,3 @@ https://www.technology.disneyanimation.com/islandscene
 https://pbrt.org/scenes-v3.html
 https://pbrt.org/fileformat-v3.html
 
-
-Distributed
------------
-beanstalkd
-npx wsproxy -p 5999 -a 127.0.0.1:11300
-aurora
