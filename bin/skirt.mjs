@@ -1230,11 +1230,11 @@ function updateGlobalBufferAndViews(buf) {
 
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 93840,
+    STACK_BASE = 107712,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 5336720,
-    DYNAMIC_BASE = 5336720,
-    DYNAMICTOP_PTR = 93808;
+    STACK_MAX = 5350592,
+    DYNAMIC_BASE = 5350592,
+    DYNAMICTOP_PTR = 107680;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1719,8 +1719,8 @@ Module['asm'] = function(global, env, providedBuffer) {
   ;
   // import table
   env['table'] = wasmTable = new WebAssembly.Table({
-    'initial': 7810,
-    'maximum': 7810,
+    'initial': 13188,
+    'maximum': 13188,
     'element': 'anyfunc'
   });
   // With the wasm backend __memory_base and __table_base and only needed for
@@ -1746,7 +1746,7 @@ var ASM_CONSTS = [];
 
 
 
-// STATICTOP = STATIC_BASE + 92816;
+// STATICTOP = STATIC_BASE + 106688;
 /* global initializers */  __ATINIT__.push({ func: function() { globalCtors() } });
 
 
@@ -1757,7 +1757,7 @@ var ASM_CONSTS = [];
 
 
 /* no memory initializer */
-var tempDoublePtr = 93824
+var tempDoublePtr = 107696
 assert(tempDoublePtr % 8 == 0);
 
 function copyTempFloat(ptr) { // functions, because inlining this code increases code size too much
@@ -5352,6 +5352,12 @@ function copyTempDouble(ptr) {
       return HEAP8.length;
     }
 
+  function _exit(status) {
+      // void _exit(int status);
+      // http://pubs.opengroup.org/onlinepubs/000095399/functions/exit.html
+      exit(status);
+    }
+
   function _getenv(name) {
       // char *getenv(const char *name);
       // http://pubs.opengroup.org/onlinepubs/009695399/functions/getenv.html
@@ -5394,7 +5400,7 @@ function copyTempDouble(ptr) {
     }
 
   
-  var ___tm_timezone=(stringToUTF8("GMT", 93712, 4), 93712);
+  var ___tm_timezone=(stringToUTF8("GMT", 107584, 4), 107584);
   
   function _tzset() {
       // TODO: Use (malleable) environment variables instead of system settings.
@@ -5885,6 +5891,7 @@ function intArrayToString(array) {
 // ASM_LIBRARY EXTERN PRIMITIVES: Int8Array,Int32Array
 
 function nullFunc_ii(x) { abortFnPtrError(x, 'ii'); }
+function nullFunc_iid(x) { abortFnPtrError(x, 'iid'); }
 function nullFunc_iidiiii(x) { abortFnPtrError(x, 'iidiiii'); }
 function nullFunc_iii(x) { abortFnPtrError(x, 'iii'); }
 function nullFunc_iiii(x) { abortFnPtrError(x, 'iiii'); }
@@ -5896,6 +5903,7 @@ function nullFunc_iiiiiii(x) { abortFnPtrError(x, 'iiiiiii'); }
 function nullFunc_iiiiiiii(x) { abortFnPtrError(x, 'iiiiiiii'); }
 function nullFunc_iiiiiiiii(x) { abortFnPtrError(x, 'iiiiiiiii'); }
 function nullFunc_iiiiij(x) { abortFnPtrError(x, 'iiiiij'); }
+function nullFunc_iij(x) { abortFnPtrError(x, 'iij'); }
 function nullFunc_jiji(x) { abortFnPtrError(x, 'jiji'); }
 function nullFunc_v(x) { abortFnPtrError(x, 'v'); }
 function nullFunc_vi(x) { abortFnPtrError(x, 'vi'); }
@@ -5915,6 +5923,7 @@ var asmLibraryArg = {
   "getTempRet0": getTempRet0,
   "abortStackOverflow": abortStackOverflow,
   "nullFunc_ii": nullFunc_ii,
+  "nullFunc_iid": nullFunc_iid,
   "nullFunc_iidiiii": nullFunc_iidiiii,
   "nullFunc_iii": nullFunc_iii,
   "nullFunc_iiii": nullFunc_iiii,
@@ -5926,6 +5935,7 @@ var asmLibraryArg = {
   "nullFunc_iiiiiiii": nullFunc_iiiiiiii,
   "nullFunc_iiiiiiiii": nullFunc_iiiiiiiii,
   "nullFunc_iiiiij": nullFunc_iiiiij,
+  "nullFunc_iij": nullFunc_iij,
   "nullFunc_jiji": nullFunc_jiji,
   "nullFunc_v": nullFunc_v,
   "nullFunc_vi": nullFunc_vi,
@@ -5971,6 +5981,7 @@ var asmLibraryArg = {
   "_emscripten_get_heap_size": _emscripten_get_heap_size,
   "_emscripten_memcpy_big": _emscripten_memcpy_big,
   "_emscripten_resize_heap": _emscripten_resize_heap,
+  "_exit": _exit,
   "_getenv": _getenv,
   "_gettimeofday": _gettimeofday,
   "_llvm_stackrestore": _llvm_stackrestore,
@@ -6143,6 +6154,12 @@ var dynCall_ii = Module["dynCall_ii"] = function() {
   return Module["asm"]["dynCall_ii"].apply(null, arguments)
 };
 
+var dynCall_iid = Module["dynCall_iid"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_iid"].apply(null, arguments)
+};
+
 var dynCall_iidiiii = Module["dynCall_iidiiii"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
@@ -6207,6 +6224,12 @@ var dynCall_iiiiij = Module["dynCall_iiiiij"] = function() {
   assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
   assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
   return Module["asm"]["dynCall_iiiiij"].apply(null, arguments)
+};
+
+var dynCall_iij = Module["dynCall_iij"] = function() {
+  assert(runtimeInitialized, 'you need to wait for the runtime to be ready (e.g. wait for main() to be called)');
+  assert(!runtimeExited, 'the runtime was exited (use NO_EXIT_RUNTIME to keep it alive after main() exits)');
+  return Module["asm"]["dynCall_iij"].apply(null, arguments)
 };
 
 var dynCall_jiji = Module["dynCall_jiji"] = function() {

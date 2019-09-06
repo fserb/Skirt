@@ -36,7 +36,8 @@ rule emcc
 rule emlink
   description = emcc linking \$out
   command = \$emcc \$ldflags \$
-    -lpthread 3rdp/wasm/lib/libglog.dylib \$
+    -lpthread 3rdp/wasm/lib/libgflags.bc \$
+    3rdp/wasm/lib/libglog.dylib \$
     \$in -o \$out
 
 rule cc
@@ -51,7 +52,7 @@ rule link
   description = clang linking \$out
   command = \$cc \$ldflags \$
     -L/usr/local/opt/binutils/lib -lbfd -ldl \$
-    -L3rdp/native/lib -lglog \$
+    -L3rdp/native/lib -lgflags -lglog \$
     \$in -o \$out
 
 EOF
@@ -74,7 +75,7 @@ cat << EOF
 
 build bin/skirt.mjs | bin/skirt.wasm: emlink $BC_OBJS
 
-build bin/skirt: link $OBJS
+build bin/skirt : link $OBJS
 
 build wasm: phony build bin/skirt.mjs
 build native: phony build bin/skirt
