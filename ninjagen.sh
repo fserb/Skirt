@@ -36,8 +36,7 @@ rule emcc
 rule emlink
   description = emcc linking \$out
   command = \$emcc \$ldflags \$
-    -lpthread 3rdp/wasm/lib/libgflags.bc \$
-    3rdp/wasm/lib/libglog.dylib \$
+    -lpthread 3rdp/wasm/lib/libglog.dylib \$
     \$in -o \$out
 
 rule cc
@@ -52,7 +51,7 @@ rule link
   description = clang linking \$out
   command = \$cc \$ldflags \$
     -L/usr/local/opt/binutils/lib -lbfd -ldl \$
-    -L3rdp/native/lib -lgflags -lglog \$
+    -L3rdp/native/lib -lglog \$
     \$in -o \$out
 
 EOF

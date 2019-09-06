@@ -20,15 +20,11 @@ cd ../..
 
 # WASM glog
 cd 3rdp/glog
-git apply ../patch/glog.patch
-mkdir n
-cd n
-emconfigure cmake -DEMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES=ON \
-  -DCMAKE_INSTALL_PREFIX=../../wasm ..
+git apply ../patches/glog.patch
+./autogen.sh
+emconfigure  ./configure prefix=`pwd`/../wasm
 emmake make
 make install
-cd ..
-rm -rf n
 git reset --hard
 cd ../..
 

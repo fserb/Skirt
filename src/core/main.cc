@@ -1,10 +1,10 @@
 // main
 
 #include <stdio.h>
-#include <glog/logging.h>
-
 
 #include "skirt.h"
+
+#include "vec3.h"
 
 void f() {
   DCHECK(0 == 0);
@@ -12,8 +12,7 @@ void f() {
 }
 
 int main(int argc, char **argv) {
-  FLAGS_alsologtostderr = 1; // It will dump to console
-  google::ParseCommandLineFlags(&argc, &argv, true);
+  FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
 
   printf("skirt\n");

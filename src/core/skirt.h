@@ -5,9 +5,8 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
-#include <gflags/gflags.h>
 
-#include "glog/logging.h"
+#include <glog/logging.h>
 
 static constexpr float MaxFloat = std::numeric_limits<float>::max();
 static constexpr float Infinity = std::numeric_limits<float>::infinity();

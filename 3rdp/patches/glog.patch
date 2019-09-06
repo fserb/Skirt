@@ -1,0 +1,40 @@
+diff --git a/configure.ac b/configure.ac
+index 02c118c..38a799f 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -33,15 +33,12 @@ AC_CHECK_HEADER(sys/types.h, ac_cv_have_systypes_h=1, ac_cv_have_systypes_h=0)
+ AC_CHECK_HEADER(inttypes.h, ac_cv_have_inttypes_h=1, ac_cv_have_inttypes_h=0)
+ AC_CHECK_HEADER(pwd.h, ac_cv_have_pwd_h=1, ac_cv_have_pwd_h=0)
+ AC_CHECK_HEADERS(unistd.h, ac_cv_have_unistd_h=1, ac_cv_have_unistd_h=0)
+-AC_CHECK_HEADERS(syscall.h)
+-AC_CHECK_HEADERS(sys/syscall.h)
+ # For backtrace with glibc.
+ AC_CHECK_HEADERS(execinfo.h)
+ # For backtrace with libunwind.
+ AC_CHECK_HEADERS(libunwind.h, ac_cv_have_libunwind_h=1, ac_cv_have_libunwind_h=0)
+ AC_CHECK_HEADERS(ucontext.h)
+ AC_CHECK_HEADERS(sys/utsname.h)
+-AC_CHECK_HEADERS(pwd.h)
+ AC_CHECK_HEADERS(syslog.h)
+ AC_CHECK_HEADERS(sys/time.h)
+ AC_CHECK_HEADERS(glob.h)
+diff --git a/src/logging.cc b/src/logging.cc
+index 0c86cf6..63a9c66 100644
+--- a/src/logging.cc
++++ b/src/logging.cc
+@@ -1792,6 +1792,7 @@ static string ShellEscape(const string& src) {
+ // log_mutex.
+ static bool SendEmailInternal(const char*dest, const char *subject,
+                               const char*body, bool use_logging) {
++#ifndef __EMSCRIPTEN__
+   if (dest && *dest) {
+     if ( use_logging ) {
+       VLOG(1) << "Trying to send TITLE:" << subject
+@@ -1830,6 +1831,7 @@ static bool SendEmailInternal(const char*dest, const char *subject,
+       }
+     }
+   }
++#endif
+   return false;
+ }
+ 
