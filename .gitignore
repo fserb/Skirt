@@ -3,4 +3,5 @@ web/
 mrkt/
 book/
 build/
-
+3rdp/native/
+3rdp/wasm/
