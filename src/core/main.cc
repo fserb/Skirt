@@ -4,6 +4,7 @@
 
 #include "skirt.h"
 
+#include "mat4.h"
 #include "vec3.h"
 
 void f() {
@@ -11,7 +12,7 @@ void f() {
   VLOG(google::INFO) << "Hello";
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   FLAGS_logtostderr = 1;
   google::InitGoogleLogging(argv[0]);
 

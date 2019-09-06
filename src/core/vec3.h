@@ -4,6 +4,8 @@
 #include <cmath>
 #include "core/skirt.h"
 
+namespace skirt {
+
 class vec3 {
  public:
   vec3() : vec3(0, 0, 0) {}
@@ -126,5 +128,7 @@ std::ostream& operator<<(std::ostream& os, const vec3& v) {
   os << StringPrintf("[ %f, %f, %f ]", v.x, v.y, v.z);
   return os;
 }
+
+}  // namespace skirt
 
 #endif
