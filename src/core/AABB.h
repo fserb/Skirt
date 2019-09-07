@@ -10,6 +10,7 @@ class AABB {
   AABB()
       : minp(MaxFloat, MaxFloat, MaxFloat),
         maxp(-MaxFloat, -MaxFloat, -MaxFloat) {}
+  explicit AABB(const Vector3& p) : AABB(p, p) {}
   AABB(const Vector3& p1, const Vector3& p2)
       : minp(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z)),
         maxp(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z)) {
@@ -69,6 +70,10 @@ class AABB {
 
   INLINE tuple<Vector3, float> BoundingSphere() const;
 
+  INLINE bool operator==(const AABB& o) const {
+    return o.minp == minp && o.maxp == maxp;
+  }
+
   Vector3 minp, maxp;
 };
 
@@ -117,6 +122,17 @@ INLINE tuple<Vector3, float> AABB::BoundingSphere() const {
   Vector3 center = (minp + maxp) / 2;
   float radius = Inside(*this, center) ? Distance(center, maxp) : 0;
   return make_tuple(center, radius);
+}
+
+INLINE float DistanceSq(const AABB& b, const Vector3& p) {
+  float dx = max(0.0f, max(b.minp.x - p.x, p.x - b.maxp.x));
+  float dy = max(0.0f, max(b.minp.y - p.y, p.y - b.maxp.y));
+  float dz = max(0.0f, max(b.minp.z - p.z, p.z - b.maxp.z));
+  return dx * dx + dy * dy + dz * dz;
+}
+
+INLINE float Distance(const AABB& b, const Vector3& p) {
+  return sqrt(DistanceSq(b, p));
 }
 
 }  // namespace skirt

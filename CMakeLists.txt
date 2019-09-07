@@ -20,13 +20,7 @@ set(CMAKE_CXX_FLAGS "-Wall -Wextra -fdiagnostics-color=always")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
-set(CMAKE_BUILD_DIRECTORY "build")
-
 enable_testing()
-
-message(STATUS ${CMAKE_SOURCE_DIR})
-message(STATUS ${CMAKE_BINARY_DIR})
 
 if (NOT CMAKE_BUILD_TYPE)
   message(STATUS "Setting build type to 'Release'")
@@ -43,10 +37,13 @@ execute_process(
 execute_process(
   COMMAND git apply ../patches/glog.patch
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdp/glog)
+execute_process(
+  COMMAND touch -r configure.ac CMakeLists.txt
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdp/glog)
 
 set(WITH_GFLAGS OFF
   CACHE BOOL "Use gflags")
-add_subdirectory(3rdp/glog)
+add_subdirectory(3rdp/glog EXCLUDE_FROM_ALL)
 
 
 ###############################################################################
@@ -55,7 +52,14 @@ add_subdirectory(3rdp/glog)
 set(YAML_CPP_BUILD_CONTRIB OFF CACHE BOOL "")
 set(YAML_CPP_BUILD_TOOLS OFF CACHE BOOL "")
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "")
-add_subdirectory(3rdp/yaml-cpp)
+add_subdirectory(3rdp/yaml-cpp EXCLUDE_FROM_ALL)
+
+
+###############################################################################
+# googletest
+
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+add_subdirectory(3rdp/googletest EXCLUDE_FROM_ALL)
 
 
 ###############################################################################
@@ -65,7 +69,7 @@ include_directories("src")
 #add_definitions(-Werror -pedantic
 #  -Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field
 
-file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
+file(GLOB_RECURSE SKIRT_SOURCE
   src/core/*
   src/loader/*
   )
@@ -79,6 +83,24 @@ target_compile_features(skirt PRIVATE
   cxx_constexpr
   cxx_lambdas
   cxx_auto_type)
+
+
+###############################################################################
+# skirt tests
+
+file(GLOB_RECURSE SKIRT_TESTS src/tests/*)
+
+add_executable(skirt_tests ${SKIRT_TESTS})
+target_link_libraries(skirt_tests gtest_main skirt)
+
+if (EMSCRIPTEN)
+set_target_properties(skirt_tests PROPERTIES
+  LINK_FLAGS "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/tools/skirt_tests_pre.js")
+endif()
+
+
+###############################################################################
+# skirt executable
 
 add_executable(skirt_exe "src/core/main.cc")
 set_target_properties(skirt_exe PROPERTIES OUTPUT_NAME skirt)

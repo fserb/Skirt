@@ -7,3 +7,6 @@
 	url = https://github.com/jbeder/yaml-cpp
 	ignore = dirty
 	
+[submodule "3rdp/googletest"]
+	path = 3rdp/googletest
+	url = https://github.com/google/googletest
