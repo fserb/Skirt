@@ -14,7 +14,7 @@ builddir = build
 emcc = emcc
 cc = clang++
 ccflags = -Wall -Wextra -Werror -pedantic \$
-  -Wno-unused-variable \$
+  -Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field \$
   -Isrc/ -O3 -std=c++17 -ffast-math \$
   -fdiagnostics-color=always
 ldflags = -flto

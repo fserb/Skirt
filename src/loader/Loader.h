@@ -3,10 +3,12 @@
 
 #include "core/skirt.h"
 
+#include "core/Scene.h"
+
 namespace skirt {
 
-void LoadSceneFile(const string& filename);
-void LoadSceneString(const string& data);
+unique_ptr<Scene> LoadSceneFile(const string& filename);
+unique_ptr<Scene> LoadSceneString(const string& data);
 
 }  // namespace skirt
 

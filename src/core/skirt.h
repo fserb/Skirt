@@ -16,6 +16,7 @@
 
 #define UNUSED __attribute__((unused))
 
+using std::move;
 using std::shared_ptr;
 using std::string;
 using std::unique_ptr;

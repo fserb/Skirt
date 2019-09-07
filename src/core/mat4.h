@@ -1,19 +1,19 @@
-#ifndef __MAT4_H__
-#define __MAT4_H__
+#ifndef __CORE_MAT4_H__
+#define __CORE_MAT4_H__
 
 #include <cmath>
 
-#include "vec3.h"
+#include "core/Vector3.h"
 
 using namespace std;
 
 namespace skirt {
 
-class mat4 {
+class Mat4 {
  public:
-  mat4() : d{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
+  Mat4() : d{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1} {}
 
-  mat4& copyFrom(const mat4& m) {
+  Mat4& copyFrom(const Mat4& m) {
     for (int i = 0; i < 16; ++i) d[i] = m[i];
     return *this;
   }
@@ -21,11 +21,11 @@ class mat4 {
   inline float operator[](int i) const { return d[i]; }
   inline float& operator[](int i) { return d[i]; }
 
-  mat4& scale(const vec3& v) { return scale(v.x, v.y, v.z); }
+  Mat4& scale(const Vector3& v) { return scale(v.x, v.y, v.z); }
 
-  mat4& scale(float v) { return scale(v, v, v); }
+  Mat4& scale(float v) { return scale(v, v, v); }
 
-  mat4& scale(float x, float y, float z) {
+  Mat4& scale(float x, float y, float z) {
     d[0] *= x;
     d[1] *= x;
     d[2] *= x;
@@ -41,9 +41,9 @@ class mat4 {
     return *this;
   }
 
-  mat4& translate(const vec3& v) { return translate(v.x, v.y, v.z); }
+  Mat4& translate(const Vector3& v) { return translate(v.x, v.y, v.z); }
 
-  mat4& translate(float x, float y, float z) {
+  Mat4& translate(float x, float y, float z) {
     d[12] = d[0] * x + d[4] * y + d[8] * z + d[12];
     d[13] = d[1] * x + d[5] * y + d[9] * z + d[13];
     d[14] = d[2] * x + d[6] * y + d[10] * z + d[14];
@@ -51,8 +51,8 @@ class mat4 {
     return *this;
   }
 
-  mat4& rotate(const vec3& axis, float rad) {
-    vec3 v = unit(axis);
+  Mat4& rotate(const Vector3& axis, float rad) {
+    Vector3 v = unit(axis);
     float s = sin(rad);
     float c = cos(rad);
     float t = 1 - c;
@@ -83,7 +83,7 @@ class mat4 {
     return *this;
   }
 
-  mat4& rotateX(float rad) {
+  Mat4& rotateX(float rad) {
     float s = sin(rad), c = cos(rad), a10 = d[4], a11 = d[5], a12 = d[6],
           a13 = d[7], a20 = d[8], a21 = d[9], a22 = d[10], a23 = d[11];
     d[4] = a10 * c + a20 * s;
@@ -97,7 +97,7 @@ class mat4 {
     return *this;
   }
 
-  mat4& rotateY(float rad) {
+  Mat4& rotateY(float rad) {
     float s = sin(rad), c = cos(rad), a00 = d[0], a01 = d[1], a02 = d[2],
           a03 = d[3], a20 = d[8], a21 = d[9], a22 = d[10], a23 = d[11];
     d[0] = a00 * c - a20 * s;
@@ -111,7 +111,7 @@ class mat4 {
     return *this;
   }
 
-  mat4& rotateZ(float rad) {
+  Mat4& rotateZ(float rad) {
     float s = sin(rad), c = cos(rad), a00 = d[0], a01 = d[1], a02 = d[2],
           a03 = d[3], a10 = d[4], a11 = d[5], a12 = d[6], a13 = d[7];
 
@@ -126,14 +126,14 @@ class mat4 {
     return *this;
   }
 
-  mat4& rotateXYZ(float x, float y, float z) {
+  Mat4& rotateXYZ(float x, float y, float z) {
     rotateX(x);
     rotateY(y);
     rotateZ(z);
     return *this;
   }
 
-  mat4& invert() {
+  Mat4& invert() {
     float n11 = d[0], n21 = d[1], n31 = d[2], n41 = d[3], n12 = d[4],
           n22 = d[5], n32 = d[6], n42 = d[7], n13 = d[8], n23 = d[9],
           n33 = d[10], n43 = d[11], n14 = d[12], n24 = d[13], n34 = d[14],
@@ -206,19 +206,19 @@ class mat4 {
   float d[16];
 };
 
-inline vec3 transform(const vec3& v, const mat4& mat) {
+inline Vector3 transform(const Vector3& v, const Mat4& mat) {
   float w = (mat[3] * v.x + mat[7] * v.y + mat[11] * v.z + mat[15]) || 1.0;
-  return vec3((mat[0] * v.x + mat[4] * v.y + mat[8] * v.z + mat[12]) / w,
-              (mat[1] * v.x + mat[5] * v.y + mat[9] * v.z + mat[13]) / w,
-              (mat[2] * v.x + mat[6] * v.y + mat[10] * v.z + mat[14]) / w);
+  return Vector3((mat[0] * v.x + mat[4] * v.y + mat[8] * v.z + mat[12]) / w,
+                 (mat[1] * v.x + mat[5] * v.y + mat[9] * v.z + mat[13]) / w,
+                 (mat[2] * v.x + mat[6] * v.y + mat[10] * v.z + mat[14]) / w);
 }
 
-inline vec3 transformNormal(const vec3& v, const mat4& mat) {
-  return vec3(mat[0] * v.x + mat[4] * v.y + mat[8] * v.z,
-              mat[1] * v.x + mat[5] * v.y + mat[9] * v.z,
-              mat[2] * v.x + mat[6] * v.y + mat[10] * v.z);
+inline Vector3 transformNormal(const Vector3& v, const Mat4& mat) {
+  return Vector3(mat[0] * v.x + mat[4] * v.y + mat[8] * v.z,
+                 mat[1] * v.x + mat[5] * v.y + mat[9] * v.z,
+                 mat[2] * v.x + mat[6] * v.y + mat[10] * v.z);
 }
 
 }  // namespace skirt
 
-#endif
+#endif  // __CORE_MAT4_H__

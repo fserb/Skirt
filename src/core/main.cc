@@ -6,6 +6,8 @@
 
 #include "loader/Loader.h"
 
+#include "core/Scene.h"
+
 namespace skirt {
 
 #ifdef __EMSCRIPTEN__
@@ -20,7 +22,19 @@ int mainEmscripten(UNUSED int argc, UNUSED char** argv) {
 int mainNative(UNUSED int argc, UNUSED char** argv) {
   DVLOG(1) << "Skirt native";
 
-  LoadSceneFile("example.scene");
+  // unique_ptr<Scene> scene(LoadSceneFile("example.scene"));
+  unique_ptr<Scene> scene(new Scene());
+
+  unique_ptr<const Scene> final(scene->Bake(move(scene)));
+
+  // Main thread
+  // Film* film = Scene->MakeFilm();
+  // // Multi thread
+  // Integrator* integrator = final->MakeIntegrator();
+  // FilmTile* tile = integrator->Render({x, y, width, height});
+  // // Main thread
+  // film->MergeTile(tile);
+  // film->SaveImage();
 
   return 0;
 }

@@ -3,7 +3,7 @@ builddir = build
 emcc = emcc
 cc = clang++
 ccflags = -Wall -Wextra -Werror -pedantic $
-  -Wno-unused-variable $
+  -Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field $
   -Isrc/ -O3 -std=c++17 -ffast-math $
   -fdiagnostics-color=always
 ldflags = -flto
@@ -47,14 +47,18 @@ rule link
     -L3rdp/native/lib -lglog -lyaml-cpp $
     $in -o $out
 
+build build/core/AABB.o: cc src/core/AABB.cc
+build build/core/AABB.bc: emcc src/core/AABB.cc
+build build/core/Scene.o: cc src/core/Scene.cc
+build build/core/Scene.bc: emcc src/core/Scene.cc
 build build/core/main.o: cc src/core/main.cc
 build build/core/main.bc: emcc src/core/main.cc
 build build/loader/Loader.o: cc src/loader/Loader.cc
 build build/loader/Loader.bc: emcc src/loader/Loader.cc
 
-build bin/skirt.mjs | bin/skirt.wasm: emlink build/loader/Loader.bc build/core/main.bc 
+build bin/skirt.mjs | bin/skirt.wasm: emlink build/loader/Loader.bc build/core/main.bc build/core/Scene.bc build/core/AABB.bc 
 
-build bin/skirt : link build/loader/Loader.o build/core/main.o 
+build bin/skirt : link build/loader/Loader.o build/core/main.o build/core/Scene.o build/core/AABB.o 
 
 build wasm: phony build bin/skirt.mjs
 build native: phony build bin/skirt
