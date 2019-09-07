@@ -2,9 +2,10 @@
 
 set -e
 
-rm -rf build/
-cmake -G Ninja -B build/native .
-emconfigure cmake -G Ninja -B build/wasm .
+TYPE="Release"
+
+cmake -G Ninja -B build/native -DCMAKE_BUILD_TYPE=${TYPE} .
+emconfigure cmake -G Ninja -B build/wasm -DCMAKE_BUILD_TYPE=${TYPE} -DEMSCRIPTEN=ON .
 
 echo
-echo "Build with: ninja"
+echo "${TYPE} build with: ninja"

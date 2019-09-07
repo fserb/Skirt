@@ -1,23 +1,43 @@
-diff --git a/configure.ac b/configure.ac
-index 02c118c..38a799f 100644
---- a/configure.ac
-+++ b/configure.ac
-@@ -33,15 +33,12 @@ AC_CHECK_HEADER(sys/types.h, ac_cv_have_systypes_h=1, ac_cv_have_systypes_h=0)
- AC_CHECK_HEADER(inttypes.h, ac_cv_have_inttypes_h=1, ac_cv_have_inttypes_h=0)
- AC_CHECK_HEADER(pwd.h, ac_cv_have_pwd_h=1, ac_cv_have_pwd_h=0)
- AC_CHECK_HEADERS(unistd.h, ac_cv_have_unistd_h=1, ac_cv_have_unistd_h=0)
--AC_CHECK_HEADERS(syscall.h)
--AC_CHECK_HEADERS(sys/syscall.h)
- # For backtrace with glibc.
- AC_CHECK_HEADERS(execinfo.h)
- # For backtrace with libunwind.
- AC_CHECK_HEADERS(libunwind.h, ac_cv_have_libunwind_h=1, ac_cv_have_libunwind_h=0)
- AC_CHECK_HEADERS(ucontext.h)
- AC_CHECK_HEADERS(sys/utsname.h)
--AC_CHECK_HEADERS(pwd.h)
- AC_CHECK_HEADERS(syslog.h)
- AC_CHECK_HEADERS(sys/time.h)
- AC_CHECK_HEADERS(glob.h)
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4254c6b..938b667 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -66,22 +66,23 @@ check_include_file (glob.h HAVE_GLOB_H)
+ check_include_file (inttypes.h HAVE_INTTYPES_H)
+ check_include_file (libunwind.h HAVE_LIBUNWIND_H)
+ check_include_file (memory.h HAVE_MEMORY_H)
++if (NOT EMSCRIPTEN)
+ check_include_file (pwd.h HAVE_PWD_H)
++check_include_file (sys/syscall.h HAVE_SYS_SYSCALL_H)
++check_include_file (syscall.h HAVE_SYSCALL_H)
++endif()
+ check_include_file (stdint.h HAVE_STDINT_H)
+ check_include_file (stdlib.h HAVE_STDLIB_H)
+ check_include_file (string.h HAVE_STRING_H)
+ check_include_file (strings.h HAVE_STRINGS_H)
+ check_include_file (sys/stat.h HAVE_SYS_STAT_H)
+-check_include_file (sys/syscall.h HAVE_SYS_SYSCALL_H)
+ check_include_file (sys/time.h HAVE_SYS_TIME_H)
+ check_include_file (sys/types.h HAVE_SYS_TYPES_H)
+ check_include_file (sys/utsname.h HAVE_SYS_UTSNAME_H)
+-check_include_file (syscall.h HAVE_SYSCALL_H)
+ check_include_file (syslog.h HAVE_SYSLOG_H)
+ check_include_file (ucontext.h HAVE_UCONTEXT_H)
+ check_include_file (unistd.h HAVE_UNISTD_H)
+ check_include_file (unwind.h HAVE_UNWIND_H)
+-check_include_file (pwd.h HAVE_PWD_H)
+ 
+ check_include_file_cxx ("ext/hash_map" HAVE_EXT_HASH_MAP)
+ check_include_file_cxx ("ext/hash_set" HAVE_EXT_HASH_SET)
+@@ -390,7 +391,7 @@ if (WIN32 OR CYGWIN)
+   if (HAVE_SYMBOLIZE)
+     set (HAVE_STACKTRACE 1)
+   endif (HAVE_SYMBOLIZE)
+-elseif (UNIX OR (APPLE AND HAVE_DLADDR))
++elseif (UNIX OR (APPLE AND HAVE_DLADDR) AND NOT EMSCRIPTEN)
+   set (HAVE_SYMBOLIZE 1)
+ endif (WIN32 OR CYGWIN)
+ 
 diff --git a/src/logging.cc b/src/logging.cc
 index 0c86cf6..63a9c66 100644
 --- a/src/logging.cc
