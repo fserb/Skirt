@@ -10,7 +10,9 @@ class Vector3 {
  public:
   Vector3() : Vector3(0, 0, 0) {}
   Vector3(const Vector3& v) : Vector3(v.x, v.y, v.z) {}
-  Vector3(float x, float y, float z) : x(x), y(y), z(z) { DCHECK(!HasNaNs()); }
+  Vector3(float x, float y, float z) : x(x), y(y), z(z) {
+    DCHECK(!HasNaNs());
+  }
 
   bool HasNaNs() const {
     return std::isnan(x) || std::isnan(y) || std::isnan(z);
@@ -40,12 +42,20 @@ class Vector3 {
   INLINE bool operator==(const Vector3& v) const {
     return x == v.x && y == v.y && z == v.z;
   }
-  INLINE bool operator!=(const Vector3& v) const { return !(*this == v); }
+  INLINE bool operator!=(const Vector3& v) const {
+    return !(*this == v);
+  }
 
-  INLINE Vector3 operator-() const { return Vector3(-x, -y, -z); }
+  INLINE Vector3 operator-() const {
+    return Vector3(-x, -y, -z);
+  }
 
-  INLINE float lensq() const { return x * x + y * y + z * z; }
-  INLINE float length() const { return std::sqrt(lensq()); }
+  INLINE float lensq() const {
+    return x * x + y * y + z * z;
+  }
+  INLINE float length() const {
+    return std::sqrt(lensq());
+  }
 
   INLINE void normalize() {
     float len = length();
@@ -80,15 +90,23 @@ INLINE Vector3 operator/(const Vector3& a, float t) {
   return a * (1.0f / t);
 }
 
-INLINE Vector3& operator+=(Vector3& a, const Vector3& b) { return a = a + b; }
-INLINE Vector3& operator-=(Vector3& a, const Vector3& b) { return a = a - b; }
-INLINE Vector3& operator*=(Vector3& a, float t) { return a = a * t; }
+INLINE Vector3& operator+=(Vector3& a, const Vector3& b) {
+  return a = a + b;
+}
+INLINE Vector3& operator-=(Vector3& a, const Vector3& b) {
+  return a = a - b;
+}
+INLINE Vector3& operator*=(Vector3& a, float t) {
+  return a = a * t;
+}
 INLINE Vector3& operator/=(Vector3& a, float t) {
   CHECK_NE(t, 0);
   return a = a * (1.0f / t);
 }
 
-INLINE Vector3 operator*(float t, const Vector3& a) { return a * t; }
+INLINE Vector3 operator*(float t, const Vector3& a) {
+  return a * t;
+}
 
 INLINE Vector3 operator/(float t, const Vector3& a) {
   CHECK_NE(t, 0);
@@ -112,7 +130,9 @@ INLINE Vector3 cross(const Vector3& a, const Vector3& b) {
                  a.x * b.y - a.y * b.x);
 }
 
-INLINE Vector3 unit(const Vector3& v) { return v / v.length(); }
+INLINE Vector3 unit(const Vector3& v) {
+  return v / v.length();
+}
 
 INLINE Vector3 reflect(const Vector3& v, const Vector3& n) {
   return v - (2 * dot(v, n)) * n;

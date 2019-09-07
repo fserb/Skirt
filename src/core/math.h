@@ -2,6 +2,7 @@
 #define __CORE_MATH_H__
 
 #include <algorithm>
+#include <cmath>
 
 using std::max;
 using std::min;

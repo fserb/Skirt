@@ -6,4 +6,9 @@ Standard: Cpp11
 Language: Cpp
 DerivePointerAlignment: false
 PointerAlignment: Left
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: true
+AllowShortLoopsOnASingleLine: true
 ---

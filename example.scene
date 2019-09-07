@@ -1,41 +1,24 @@
 # example scene
 LookAt:
-  from: [3, 4, 1.5]
-  to: [.5, .5, 0]
-  up: [0, 0, 1]
+  from: [3, 3, 2]
+  to: [0, 0, -1]
 
 Camera.perspective:
-  fov: 45.0
+  fov: 20.0
+  aperture: 2.0
+  focusDistance: 5.196152422706632
 
-Sampler.halton:
-  pixelsamples: 128
+Sampler.random:
+  pixelsamples: 100
 
 Integrator.path:
 
 Film.image:
-  filename: "simple.png"
+  filename: "out.pmf"
   resolution: [400, 400]
 
 World:
-  - LightSource.infinite:
-    L.RGB: [.4, .45, 5]
-  - LightSource.distant:
-    from: [-30, 40, 100]
-    L.blackbody: [3000, 1.5]
   - Element:
-    Material.glass:
+    Material.lambertian: [0.1, 0.2, 0.5]
     Shape.sphere:
       radius: 1
-  - Element:
-    Texture.checks:
-      spectrum.cheeckboard:
-      uvscale: [8, 8]
-      tex1: [.1, .1, .1]
-      tex2: [.8, .8, .8]
-    Material.matte:
-    Translate: [0, 0, -1]
-    Shape.trianglemesh:
-      indices: [0, 1, 2, 0, 2, 3]
-      P: [-20, -20, 0, 20, -20, 0, 20, 20, 0, -20, 20, 0]
-      st: [0, 0, 1, 0, 1, 1, 0, 1]
-

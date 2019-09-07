@@ -10,7 +10,7 @@
 
 #include <glog/logging.h>
 
-#define INLINE __attribute__((always_inline))
+#define INLINE __attribute__((always_inline)) inline
 #define LIKELY(expr) (__builtin_expect(!!(expr), 1))
 #define UNLIKELY(expr) (__builtin_expect(!!(expr), 0))
 
@@ -21,8 +21,6 @@ using std::shared_ptr;
 using std::string;
 using std::unique_ptr;
 using std::weak_ptr;
-
-#include "core/math.h"
 
 // These printf-like functions are implemented in terms of vsnprintf, so
 // they use the same attribute for compile-time format string checking.
@@ -39,5 +37,8 @@ void StringAppendF(std::string* dst, const char* fmt, ...)
 // Appends a printf-like formatting of the arguments to 'dst'.
 void StringAppendV(std::string* dst, const char* format, va_list ap)
     __attribute__((__format__(__printf__, 2, 0)));
+
+#include "core/Vector3.h"
+#include "core/math.h"
 
 #endif
