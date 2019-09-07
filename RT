@@ -17,10 +17,29 @@ GOALS
 - progress: MRays/s, total rays, etc.
 
 
+DESIGN
+- Skirt external API:
+  // Main thread
+  Scene* scene = ParseSceneFile();
+  const Scene* final = scene->Bake(std::move(scene));
+  Film* film = Scene->MakeFilm();
+  // Multi thread
+  Integrator* integrator = final->MakeIntegrator();
+  FilmTile* tile = integrator->Render({x, y, width, height});
+  // Main thread
+  film->MergeTile(tile);
+  film->SaveImage();
+
+
+
+
+
+
 TODO
 - 3rd book
-
 - localstorage stateful
+
+- Check SIMD with vectorize analysis
 
 
 References
@@ -54,4 +73,16 @@ http://www.graphics.cornell.edu/online/box/data.html
 https://www.technology.disneyanimation.com/islandscene
 https://pbrt.org/scenes-v3.html
 https://pbrt.org/fileformat-v3.html
+
+
+Libraries
+---------
+OpenEXR loader/saver: https://github.com/syoyo/tinyexr
+PNG loader: https://lodev.org/lodepng/
+Random number generator: https://github.com/mattiasgustavsson/libs/blob/master/docs/rnd.md
+
+godbolt.org
+
+
+
 

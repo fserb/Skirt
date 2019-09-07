@@ -13,7 +13,9 @@ ninja_required_version = 1.9.0
 builddir = build
 emcc = emcc
 cc = clang++
-ccflags = -Isrc/ -O3 -std=c++14 -ffast-math -fdiagnostics-color=always
+ccflags = -Wall -Wextra -Werror -pedantic \$
+  -Isrc/ -O3 -std=c++17 -ffast-math \$
+  -fdiagnostics-color=always
 ldflags = -flto
 
 rule ninjagen

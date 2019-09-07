@@ -1,22 +1,27 @@
 // main
 
+#include "core/skirt.h"
+
 #include <stdio.h>
 
-#include "skirt.h"
+int mainNative(UNUSED int argc, UNUSED char** argv) {
+  DVLOG(1) << "Skirt native";
+  return 0;
+}
 
-#include "mat4.h"
-#include "vec3.h"
-
-void f() {
-  DCHECK(0 == 0);
-  VLOG(google::INFO) << "Hello";
+int mainEmscripten(UNUSED int argc, UNUSED char** argv) {
+  DVLOG(1) << "Skirt emscripten";
+  return 0;
 }
 
 int main(int argc, char** argv) {
   FLAGS_logtostderr = 1;
+  FLAGS_v = 3;
   google::InitGoogleLogging(argv[0]);
 
-  printf("skirt\n");
-  f();
-  return 0;
+#ifdef __EMSCRIPTEN__
+  return mainEmscripten(argc, argv);
+#else
+  return mainNative(argc, argv);
+#endif
 }
