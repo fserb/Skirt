@@ -1,8 +1,10 @@
 #ifndef __CORE_SKIRT_H__
 #define __CORE_SKIRT_H__
 
+#include <stdarg.h>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <memory>
@@ -26,24 +28,9 @@ using std::tuple;
 using std::unique_ptr;
 using std::weak_ptr;
 
-// These printf-like functions are implemented in terms of vsnprintf, so
-// they use the same attribute for compile-time format string checking.
-
-// Returns a string corresponding to printf-like formatting of the
-// arguments.
-std::string StringPrintf(const char* fmt, ...)
-    __attribute__((__format__(__printf__, 1, 2)));
-
-// Appends a printf-like formatting of the arguments to 'dst'.
-void StringAppendF(std::string* dst, const char* fmt, ...)
-    __attribute__((__format__(__printf__, 2, 3)));
-
-// Appends a printf-like formatting of the arguments to 'dst'.
-void StringAppendV(std::string* dst, const char* format, va_list ap)
-    __attribute__((__format__(__printf__, 2, 0)));
-
 }  // namespace skirt
 
+#include "core/StringPrintf.h"
 #include "core/Vector3.h"
 #include "core/math.h"
 

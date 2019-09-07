@@ -69,7 +69,7 @@ include_directories("src")
 #add_definitions(-Werror -pedantic
 #  -Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field
 
-file(GLOB_RECURSE SKIRT_SOURCE
+file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
   src/core/*
   src/loader/*
   )
@@ -88,7 +88,7 @@ target_compile_features(skirt PRIVATE
 ###############################################################################
 # skirt tests
 
-file(GLOB_RECURSE SKIRT_TESTS src/tests/*)
+file(GLOB_RECURSE SKIRT_TESTS CONFIGURE_DEPENDS src/tests/*)
 
 add_executable(skirt_tests ${SKIRT_TESTS})
 target_link_libraries(skirt_tests gtest_main skirt)

@@ -48,6 +48,9 @@ int main(int argc, char** argv) {
   FLAGS_v = 3;
   google::InitGoogleLogging(argv[0]);
 
+  skirt::Vector3 a(1, 2, 3);
+  DVLOG(1) << a;
+
 #ifdef __EMSCRIPTEN__
   return skirt::mainEmscripten(argc, argv);
 #else

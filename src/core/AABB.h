@@ -11,9 +11,7 @@ class AABB {
       : minp(MaxFloat, MaxFloat, MaxFloat),
         maxp(-MaxFloat, -MaxFloat, -MaxFloat) {}
   explicit AABB(const Vector3& p) : AABB(p, p) {}
-  AABB(const Vector3& p1, const Vector3& p2)
-      : minp(min(p1.x, p2.x), min(p1.y, p2.y), min(p1.z, p2.z)),
-        maxp(max(p1.x, p2.x), max(p1.y, p2.y), max(p1.z, p2.z)) {
+  AABB(const Vector3& minp, const Vector3& maxp) : minp(minp), maxp(maxp) {
     DCHECK(!HasNaNs());
   }
   bool HasNaNs() {
@@ -78,27 +76,15 @@ class AABB {
 };
 
 INLINE AABB Union(const AABB& b, const Vector3& p) {
-  return AABB(
-      Vector3(min(b.minp.x, p.x), min(b.minp.y, p.y), min(b.minp.z, p.z)),
-      Vector3(max(b.maxp.x, p.x), max(b.maxp.y, p.y), max(b.maxp.z, p.z)));
+  return AABB(min(b.minp, p), max(b.maxp, p));
 }
 
 INLINE AABB Union(const AABB& a, const AABB& b) {
-  return AABB(Vector3(min(a.minp.x, b.minp.x),
-                      min(a.minp.y, b.minp.y),
-                      min(a.minp.z, b.minp.z)),
-              Vector3(max(a.maxp.x, b.maxp.x),
-                      max(a.maxp.y, b.maxp.y),
-                      max(a.maxp.z, b.maxp.z)));
+  return AABB(min(a.minp, b.minp), max(a.maxp, b.maxp));
 }
 
 INLINE AABB Intersect(const AABB& a, const AABB& b) {
-  return AABB(Vector3(max(a.minp.x, b.minp.x),
-                      max(a.minp.y, b.minp.y),
-                      max(a.minp.z, b.minp.z)),
-              Vector3(min(a.maxp.x, b.maxp.x),
-                      min(a.maxp.y, b.maxp.y),
-                      min(a.maxp.z, b.maxp.z)));
+  return AABB(max(a.minp, b.minp), min(a.maxp, b.maxp));
 }
 
 INLINE bool Overlaps(const AABB& a, const AABB& b) {
@@ -133,6 +119,11 @@ INLINE float DistanceSq(const AABB& b, const Vector3& p) {
 
 INLINE float Distance(const AABB& b, const Vector3& p) {
   return sqrt(DistanceSq(b, p));
+}
+
+INLINE std::ostream& operator<<(std::ostream& os, const AABB& b) {
+  os << "AABB[ " << b.minp << " - " << b.maxp << " ]";
+  return os;
 }
 
 }  // namespace skirt
