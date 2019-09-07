@@ -16,9 +16,13 @@
 
 #define UNUSED __attribute__((unused))
 
+namespace skirt {
+
+using std::make_tuple;
 using std::move;
 using std::shared_ptr;
 using std::string;
+using std::tuple;
 using std::unique_ptr;
 using std::weak_ptr;
 
@@ -37,6 +41,8 @@ void StringAppendF(std::string* dst, const char* fmt, ...)
 // Appends a printf-like formatting of the arguments to 'dst'.
 void StringAppendV(std::string* dst, const char* format, va_list ap)
     __attribute__((__format__(__printf__, 2, 0)));
+
+}  // namespace skirt
 
 #include "core/Vector3.h"
 #include "core/math.h"

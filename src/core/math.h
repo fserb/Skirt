@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <cmath>
 
+namespace skirt {
+
 using std::max;
 using std::min;
 
@@ -25,4 +27,5 @@ static constexpr float Pi = 3.14159265358979323846;
 static constexpr float Tau = 6.28318530717958647692;
 static constexpr float Sqrt2 = 1.41421356237309504880;
 
+}  // namespace skirt
 #endif

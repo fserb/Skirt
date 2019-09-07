@@ -121,26 +121,30 @@ INLINE Vector3 max(const Vector3& a, const Vector3& b) {
   return Vector3(std::max(a.x, b.x), std::max(a.y, b.y), std::max(a.z, b.z));
 }
 
-INLINE float dot(const Vector3& a, const Vector3& b) {
+INLINE float Distance(const Vector3& a, const Vector3& b) {
+  return (b - a).length();
+}
+
+INLINE float Dot(const Vector3& a, const Vector3& b) {
   return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
-INLINE Vector3 cross(const Vector3& a, const Vector3& b) {
-  return Vector3(a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z,
-                 a.x * b.y - a.y * b.x);
+INLINE Vector3 Cross(const Vector3& a, const Vector3& b) {
+  return Vector3(
+      a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-INLINE Vector3 unit(const Vector3& v) {
+INLINE Vector3 Unit(const Vector3& v) {
   return v / v.length();
 }
 
-INLINE Vector3 reflect(const Vector3& v, const Vector3& n) {
-  return v - (2 * dot(v, n)) * n;
+INLINE Vector3 Reflect(const Vector3& v, const Vector3& n) {
+  return v - (2 * Dot(v, n)) * n;
 }
 
-INLINE Vector3 refract(const Vector3& v, const Vector3& normal, float nint) {
-  Vector3 uv = unit(v);
-  float dt = dot(uv, normal);
+INLINE Vector3 Refract(const Vector3& v, const Vector3& normal, float nint) {
+  Vector3 uv = Unit(v);
+  float dt = Dot(uv, normal);
   float discr = 1.0 - nint * nint * (1 - dt * dt);
   if (discr <= 0) return Vector3(0, 0, 0);
   return nint * (uv - normal * dt) - normal * sqrt(discr);

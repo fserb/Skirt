@@ -9,13 +9,15 @@ class Ray {
  public:
   Ray() {}
   Ray(const Vector3& origin, const Vector3& direction)
-      : origin(origin), direction(direction) {}
+      : origin(origin), direction(direction), minT(-Infinity), maxT(Infinity) {}
   bool HasNaNs() {
     return origin.HasNaNs() || direction.HasNaNs();
   }
 
   Vector3 origin;
   Vector3 direction;
+  float minT;
+  float maxT;
 }
 
 std::ostream&

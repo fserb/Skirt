@@ -6,8 +6,8 @@
 
 #include "loader/Loader.h"
 
+#include "core/AABB.h"
 #include "core/Scene.h"
-
 namespace skirt {
 
 #ifdef __EMSCRIPTEN__
