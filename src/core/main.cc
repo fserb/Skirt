@@ -4,15 +4,30 @@
 
 #include <stdio.h>
 
-int mainNative(UNUSED int argc, UNUSED char** argv) {
-  DVLOG(1) << "Skirt native";
-  return 0;
-}
+#include "loader/Loader.h"
+
+namespace skirt {
+
+#ifdef __EMSCRIPTEN__
 
 int mainEmscripten(UNUSED int argc, UNUSED char** argv) {
   DVLOG(1) << "Skirt emscripten";
   return 0;
 }
+
+#else
+
+int mainNative(UNUSED int argc, UNUSED char** argv) {
+  DVLOG(1) << "Skirt native";
+
+  LoadSceneFile("example.scene");
+
+  return 0;
+}
+
+#endif
+
+}  // namespace skirt
 
 int main(int argc, char** argv) {
   FLAGS_logtostderr = 1;
@@ -20,8 +35,8 @@ int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
 
 #ifdef __EMSCRIPTEN__
-  return mainEmscripten(argc, argv);
+  return skirt::mainEmscripten(argc, argv);
 #else
-  return mainNative(argc, argv);
+  return skirt::mainNative(argc, argv);
 #endif
 }

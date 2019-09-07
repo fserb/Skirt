@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <iostream>
 #include <limits>
+#include <memory>
+#include <string>
 
 #include <glog/logging.h>
 
@@ -14,12 +16,18 @@
 
 #define UNUSED __attribute__((unused))
 
+using std::shared_ptr;
+using std::string;
+using std::unique_ptr;
+using std::weak_ptr;
+
 #include "core/math.h"
 
-// These printf-like functions are implemented in terms of vsnprintf, so they
-// use the same attribute for compile-time format string checking.
+// These printf-like functions are implemented in terms of vsnprintf, so
+// they use the same attribute for compile-time format string checking.
 
-// Returns a string corresponding to printf-like formatting of the arguments.
+// Returns a string corresponding to printf-like formatting of the
+// arguments.
 std::string StringPrintf(const char* fmt, ...)
     __attribute__((__format__(__printf__, 1, 2)));
 

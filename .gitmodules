@@ -1,3 +1,6 @@
 [submodule "3rdp/glog"]
 	path = 3rdp/glog
 	url = https://github.com/google/glog
+[submodule "3rdp/yaml-cpp"]
+	path = 3rdp/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp

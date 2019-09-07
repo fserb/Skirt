@@ -14,6 +14,7 @@ builddir = build
 emcc = emcc
 cc = clang++
 ccflags = -Wall -Wextra -Werror -pedantic \$
+  -Wno-unused-variable \$
   -Isrc/ -O3 -std=c++17 -ffast-math \$
   -fdiagnostics-color=always
 ldflags = -flto
@@ -39,6 +40,7 @@ rule emlink
   description = emcc linking \$out
   command = \$emcc \$ldflags \$
     -lpthread 3rdp/wasm/lib/libglog.dylib \$
+    3rdp/wasm/lib/libyaml-cpp.bc \$
     \$in -o \$out
 
 rule cc
@@ -53,7 +55,7 @@ rule link
   description = clang linking \$out
   command = \$cc \$ldflags \$
     -L/usr/local/opt/binutils/lib -lbfd -ldl \$
-    -L3rdp/native/lib -lglog \$
+    -L3rdp/native/lib -lglog -lyaml-cpp \$
     \$in -o \$out
 
 EOF
