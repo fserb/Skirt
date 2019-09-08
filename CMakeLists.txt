@@ -95,6 +95,7 @@ include_directories("src")
 file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
   src/core/*
   src/loader/*
+  src/shapes/*
   src/3rdp/*
   )
 list(REMOVE_ITEM SKIRT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/core/main.cc")

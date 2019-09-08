@@ -3,6 +3,7 @@
 
 #include <glog/logging.h>
 #include <gtest/gtest.h>
+#include <rapidcheck.h>
 
 #include "core/StringPrintf.h"
 
@@ -12,6 +13,7 @@ int main(int argc, char** argv) {
   setenv("RC_PARAMS",
          StringPrintf("max_success=1000 %s", getenv("RC_PARAMS")).c_str(),
          1);
+  rc::detail::configuration();
   FLAGS_logtostderr = 1;
   FLAGS_v = 3;
   ::testing::InitGoogleTest(&argc, argv);

@@ -30,15 +30,18 @@ DESIGN
   film->MergeTile(tile);
   film->SaveImage();
 
+- Element contains Shape, Transform, Material, Texture
+- Shape is always in Object space
+- Element do translation between ObjectSpace and WorldSpace.
+
+
 
 TODO
-- disallow copy and assign
-- quickcheck test
-
+- Remove Ray.minT ?
+- Allow Constructive Geometry elements?
 
 - 3rd book
 - localstorage stateful
-
 - Check SIMD with vectorize analysis
 
 

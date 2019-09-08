@@ -14,6 +14,10 @@
 
 #include <glog/logging.h>
 
+#ifndef NDEBUG
+#define DEBUG
+#endif
+
 #define INLINE __attribute__((always_inline)) inline
 #define LIKELY(expr) (__builtin_expect(!!(expr), 1))
 #define UNLIKELY(expr) (__builtin_expect(!!(expr), 0))

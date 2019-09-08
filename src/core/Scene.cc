@@ -7,12 +7,12 @@ const Scene* Scene::Bake(unique_ptr<Scene>&& scene) {
 }
 
 Film Scene::MakeFilm() const {
-  Film f(100, 100, "test.png");
+  Film f(200, 100, "test.png");
   return f;
 }
 
 unique_ptr<Integrator> Scene::MakeIntegrator() const {
-  unique_ptr<SamplerIntegrator> in(new SamplerIntegrator());
+  unique_ptr<SamplerIntegrator> in(new SamplerIntegrator(this));
 
   return move(in);
 }

@@ -25,9 +25,9 @@ class Scene {
     this->root = root;
   }
 
- private:
   shared_ptr<Element> root;
 
+ private:
   DISALLOW_COPY_AND_ASSIGN(Scene);
 };
 

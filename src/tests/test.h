@@ -19,15 +19,15 @@ struct Arbitrary<Vector3> {
 
 namespace skirt {
 
-bool AlmostEqual(float A, float B, int maxUlpsDiff = 5) {
-  int& a = reinterpret_cast<int&>(A);
-  int& b = reinterpret_cast<int&>(B);
+INLINE bool AlmostEqual(float A, float B, int maxULPDiff = 5) {
+  int a = FloatToBits(A);
+  int b = FloatToBits(B);
 
   // different signs means different, except for +0 and -0
   if ((a < 0) != (b < 0)) return a == b;
 
-  int ulpsdiff = abs(a - b);
-  return ulpsdiff <= maxUlpsDiff;
+  int ULPDiff = abs(a - b);
+  return ULPDiff <= maxULPDiff;
 }
 
 }  // namespace skirt

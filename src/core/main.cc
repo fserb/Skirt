@@ -13,14 +13,19 @@
 #include "core/Film.h"
 #include "core/Integrator.h"
 
+#include "core/EFloat.h"
+#include "shapes/Sphere.h"
+
 namespace skirt {
 
 int mainShared(UNUSED int argc, UNUSED char** argv) {
   // unique_ptr<Scene> scene(LoadSceneFile("example.scene"));
   unique_ptr<Scene> scene(new Scene());
 
-  // Shape circle = ...
-  // scene->SetRootElement(circle);
+  shared_ptr<Shape> sphere(new Sphere(0.5));
+  shared_ptr<Element> obj(new Element(sphere));
+
+  scene->SetRootElement(obj);
 
   unique_ptr<const Scene> final(scene->Bake(move(scene)));
 
