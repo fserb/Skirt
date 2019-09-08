@@ -74,6 +74,8 @@ add_subdirectory(3rdp/googletest EXCLUDE_FROM_ALL)
 ###############################################################################
 # rapidcheck
 
+set(RC_ENABLE_GTEST ON CACHE BOOL "" FORCE)
+set(RC_ENABLE_GMOCK ON CACHE BOOL "" FORCE)
 add_subdirectory(3rdp/rapidcheck EXCLUDE_FROM_ALL)
 
 
