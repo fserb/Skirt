@@ -32,6 +32,10 @@ DESIGN
 
 
 TODO
+- disallow copy and assign
+- quickcheck test
+
+
 - 3rd book
 - localstorage stateful
 

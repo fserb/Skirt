@@ -19,6 +19,10 @@
 
 #define UNUSED __attribute__((unused))
 
+#define DISALLOW_COPY_AND_ASSIGN(TypeName)       \
+  TypeName& operator=(const Typename&) = delete; \
+  TypeName(const TypeName&) = delete;
+
 namespace skirt {
 
 using std::make_tuple;

@@ -3,7 +3,7 @@ orig/
 web/
 mrkt/
 book/
-build/
+out/
 3rdp/native/
 3rdp/wasm/
 rt.sublime-*

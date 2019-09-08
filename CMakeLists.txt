@@ -1,4 +1,6 @@
-cmake_minimum_required (VERSION 3.15.2)
+cmake_minimum_required (VERSION 3.15.3)
+
+set(CMAKE_POLICY_DEFAULT_CMP0082 NEW CACHE STRING "")
 
 if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
    message(FATAL_ERROR "Please choose a different directory for building")
@@ -8,6 +10,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(EMSCRIPTEN OFF CACHE BOOL "Use emscripten")
 if (EMSCRIPTEN)
+  SET(EMSCRIPTEN_FORCE_COMPILERS OFF CACHE BOOL "")
   SET(EMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES ON
     CACHE BOOL "")
   message(STATUS "Using Emscripten toolchain")
@@ -69,6 +72,12 @@ add_subdirectory(3rdp/googletest EXCLUDE_FROM_ALL)
 
 
 ###############################################################################
+# rapidcheck
+
+add_subdirectory(3rdp/rapidcheck EXCLUDE_FROM_ALL)
+
+
+###############################################################################
 # skirt
 
 include_directories("src")
@@ -103,7 +112,7 @@ target_compile_features(skirt PRIVATE
 file(GLOB_RECURSE SKIRT_TESTS CONFIGURE_DEPENDS src/tests/*)
 
 add_executable(skirt_tests ${SKIRT_TESTS})
-target_link_libraries(skirt_tests gtest_main skirt)
+target_link_libraries(skirt_tests gtest_main rapidcheck skirt)
 
 if (EMSCRIPTEN)
 set_target_properties(skirt_tests PROPERTIES
