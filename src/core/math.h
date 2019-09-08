@@ -1,5 +1,4 @@
-#ifndef __CORE_MATH_H__
-#define __CORE_MATH_H__
+#pragma once
 
 #include <algorithm>
 #include <cmath>
@@ -28,4 +27,3 @@ static constexpr float Tau = 6.28318530717958647692;
 static constexpr float Sqrt2 = 1.41421356237309504880;
 
 }  // namespace skirt
-#endif

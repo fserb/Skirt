@@ -1,5 +1,4 @@
-#ifndef __LOADER_LOADER_H__
-#define __LOADER_LOADER_H__
+#pragma once
 
 #include "core/skirt.h"
 
@@ -11,5 +10,3 @@ unique_ptr<Scene> LoadSceneFile(const string& filename);
 unique_ptr<Scene> LoadSceneString(const string& data);
 
 }  // namespace skirt
-
-#endif  // __LOADER_LOADER_H__

@@ -9,7 +9,7 @@ GOALS
 
 - interface with progress
 - PFM visualization
-- PBRT format
+- YAML format based on PBRT
 
 - rendering test vs PBRT, https://www.mitsuba-renderer.org/,
   https://luxcorerender.org
@@ -29,10 +29,6 @@ DESIGN
   // Main thread
   film->MergeTile(tile);
   film->SaveImage();
-
-
-
-
 
 
 TODO

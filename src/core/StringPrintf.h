@@ -1,5 +1,4 @@
-#ifndef __CORE_STRINGPRINTF_H__
-#define __CORE_STRINGPRINTF_H__
+#pragma once
 
 #include <stdarg.h>
 #include <string>
@@ -21,5 +20,3 @@ void StringAppendV(std::string* dst, const char* format, va_list ap)
     __attribute__((__format__(__printf__, 2, 0)));
 
 }  // namespace skirt
-
-#endif  // __CORE_STRINGPRINTF_H__

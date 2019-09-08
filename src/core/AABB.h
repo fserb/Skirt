@@ -1,5 +1,4 @@
-#ifndef __CORE_AABB_H__
-#define __CORE_AABB_H__
+#pragma once
 
 #include "skirt.h"
 
@@ -127,5 +126,3 @@ INLINE std::ostream& operator<<(std::ostream& os, const AABB& b) {
 }
 
 }  // namespace skirt
-
-#endif  // __CORE_AABB_H__

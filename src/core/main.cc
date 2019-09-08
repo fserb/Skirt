@@ -7,7 +7,9 @@
 #include "loader/Loader.h"
 
 #include "core/AABB.h"
+#include "core/Matrix4.h"
 #include "core/Scene.h"
+
 namespace skirt {
 
 #ifdef __EMSCRIPTEN__
@@ -23,14 +25,14 @@ int mainNative(UNUSED int argc, UNUSED char** argv) {
   DVLOG(1) << "Skirt native";
 
   // unique_ptr<Scene> scene(LoadSceneFile("example.scene"));
-  unique_ptr<Scene> scene(new Scene());
+  // unique_ptr<Scene> scene(new Scene());
 
-  unique_ptr<const Scene> final(scene->Bake(move(scene)));
+  // unique_ptr<const Scene> final(scene->Bake(move(scene)));
 
   // Main thread
-  // Film* film = Scene->MakeFilm();
+  // Film* film = Scene->Film();
   // // Multi thread
-  // Integrator* integrator = final->MakeIntegrator();
+  // Integrator* integrator = final->Integrator();
   // FilmTile* tile = integrator->Render({x, y, width, height});
   // // Main thread
   // film->MergeTile(tile);

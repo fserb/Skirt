@@ -1,5 +1,4 @@
-#ifndef __CORE_VECTOR3_H__
-#define __CORE_VECTOR3_H__
+#pragma once
 
 #include <cmath>
 #include "core/skirt.h"
@@ -50,15 +49,15 @@ class Vector3 {
     return Vector3(-x, -y, -z);
   }
 
-  INLINE float lensq() const {
+  INLINE float LengthSq() const {
     return x * x + y * y + z * z;
   }
-  INLINE float length() const {
-    return std::sqrt(lensq());
+  INLINE float Length() const {
+    return std::sqrt(LengthSq());
   }
 
-  INLINE void normalize() {
-    float len = length();
+  INLINE void Normalize() {
+    float len = Length();
     CHECK_NE(len, 0);
     float div = 1 / len;
     x *= div;
@@ -122,7 +121,7 @@ INLINE Vector3 max(const Vector3& a, const Vector3& b) {
 }
 
 INLINE float Distance(const Vector3& a, const Vector3& b) {
-  return (b - a).length();
+  return (b - a).Length();
 }
 
 INLINE float Dot(const Vector3& a, const Vector3& b) {
@@ -134,8 +133,8 @@ INLINE Vector3 Cross(const Vector3& a, const Vector3& b) {
       a.y * b.z - a.z * b.y, a.z * b.x - a.x * b.z, a.x * b.y - a.y * b.x);
 }
 
-INLINE Vector3 Unit(const Vector3& v) {
-  return v / v.length();
+INLINE Vector3 Normalize(const Vector3& v) {
+  return v / v.Length();
 }
 
 INLINE Vector3 Reflect(const Vector3& v, const Vector3& n) {
@@ -143,7 +142,7 @@ INLINE Vector3 Reflect(const Vector3& v, const Vector3& n) {
 }
 
 INLINE Vector3 Refract(const Vector3& v, const Vector3& normal, float nint) {
-  Vector3 uv = Unit(v);
+  Vector3 uv = Normalize(v);
   float dt = Dot(uv, normal);
   float discr = 1.0 - nint * nint * (1 - dt * dt);
   if (discr <= 0) return Vector3(0, 0, 0);
@@ -156,5 +155,3 @@ INLINE std::ostream& operator<<(std::ostream& os, const Vector3& v) {
 }
 
 }  // namespace skirt
-
-#endif  // __CORE_VECTOR3_H__

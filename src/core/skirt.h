@@ -1,5 +1,4 @@
-#ifndef __CORE_SKIRT_H__
-#define __CORE_SKIRT_H__
+#pragma once
 
 #include <stdarg.h>
 #include <cmath>
@@ -33,5 +32,3 @@ using std::weak_ptr;
 #include "core/StringPrintf.h"
 #include "core/Vector3.h"
 #include "core/math.h"
-
-#endif

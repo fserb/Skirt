@@ -1,5 +1,4 @@
-#ifndef __CORE_SCENE_H__
-#define __CORE_SCENE_H__
+#pragma once
 
 #include "core/skirt.h"
 
@@ -16,5 +15,3 @@ class Scene {
 };
 
 }  // namespace skirt
-
-#endif  // __CORE_SCENE_H__
