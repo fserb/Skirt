@@ -38,6 +38,7 @@ execute_process(
   COMMAND git apply ../patches/glog.patch
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdp/glog)
 execute_process(
+  COMMAND touch -r configure.ac src/logging.cc
   COMMAND touch -r configure.ac CMakeLists.txt
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/3rdp/glog)
 
