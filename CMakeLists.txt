@@ -16,13 +16,21 @@ if (EMSCRIPTEN)
     CACHE BOOL "")
 endif()
 
-
 project(skirt LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -fdiagnostics-color=always")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS "-fdiagnostics-color=always")
+
+set(COMPILE_OPTIONS
+  "-Wall"
+  "-Wextra"
+  "-Werror"
+  "-pedantic"
+  "-Wno-unused-variable"
+  "-Wno-unused-parameter"
+  "-Wno-unused-private-field")
 
 enable_testing()
 
@@ -83,8 +91,6 @@ add_subdirectory(3rdp/rapidcheck EXCLUDE_FROM_ALL)
 # skirt
 
 include_directories("src")
-#add_definitions(-Werror -pedantic
-#  -Wno-unused-variable -Wno-unused-parameter -Wno-unused-private-field
 
 file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
   src/core/*
@@ -94,6 +100,7 @@ file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
 list(REMOVE_ITEM SKIRT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/core/main.cc")
 
 add_library(skirt STATIC ${SKIRT_SOURCE})
+target_compile_options(skirt PRIVATE ${COMPILE_OPTIONS})
 
 target_link_libraries(skirt yaml-cpp glog)
 
@@ -115,6 +122,7 @@ file(GLOB_RECURSE SKIRT_TESTS CONFIGURE_DEPENDS src/tests/*)
 
 add_executable(skirt_tests ${SKIRT_TESTS})
 target_link_libraries(skirt_tests gtest rapidcheck_gtest skirt)
+target_compile_options(skirt_tests PRIVATE ${COMPILE_OPTIONS})
 
 if (EMSCRIPTEN)
 set_target_properties(skirt_tests PROPERTIES
@@ -128,6 +136,7 @@ endif()
 
 add_executable(skirt_exe "src/core/main.cc")
 set_target_properties(skirt_exe PROPERTIES OUTPUT_NAME skirt)
+target_compile_options(skirt_exe PRIVATE ${COMPILE_OPTIONS})
 target_link_libraries(skirt_exe skirt yaml-cpp glog)
 
 set_target_properties(skirt skirt_exe PROPERTIES

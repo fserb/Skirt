@@ -9,6 +9,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <string>
 
 #include <glog/logging.h>
@@ -20,13 +21,15 @@
 #define UNUSED __attribute__((unused))
 
 #define DISALLOW_COPY_AND_ASSIGN(TypeName)       \
-  TypeName& operator=(const Typename&) = delete; \
+  TypeName& operator=(const TypeName&) = delete; \
   TypeName(const TypeName&) = delete;
 
 namespace skirt {
 
 using std::make_tuple;
 using std::move;
+using std::nullopt;
+using std::optional;
 using std::shared_ptr;
 using std::string;
 using std::tuple;
