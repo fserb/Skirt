@@ -4,7 +4,11 @@ set -e
 
 git submodule update --init --recursive
 
+TYPE="$1"
+
+if [ -z "$TYPE" ]; then
 TYPE="Release"
+fi
 
 export LDFLAGS="-L/usr/local/opt/llvm/lib"
 export CPPFLAGS="-I/usr/local/opt/llvm/include"

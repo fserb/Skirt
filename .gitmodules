@@ -16,5 +16,4 @@
 [submodule "3rdp/rapidcheck"]
 	path = 3rdp/rapidcheck
 	url = https://github.com/emil-e/rapidcheck
-	update = none
 	ignore = dirty

@@ -112,7 +112,7 @@ target_compile_features(skirt PRIVATE
 file(GLOB_RECURSE SKIRT_TESTS CONFIGURE_DEPENDS src/tests/*)
 
 add_executable(skirt_tests ${SKIRT_TESTS})
-target_link_libraries(skirt_tests gtest_main rapidcheck skirt)
+target_link_libraries(skirt_tests gtest rapidcheck_gtest skirt)
 
 if (EMSCRIPTEN)
 set_target_properties(skirt_tests PROPERTIES
