@@ -10,11 +10,12 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 set(EMSCRIPTEN OFF CACHE BOOL "Use emscripten")
 if (EMSCRIPTEN)
+  message(STATUS "Using Emscripten toolchain")
   SET(EMSCRIPTEN_FORCE_COMPILERS OFF CACHE BOOL "")
   SET(EMSCRIPTEN_GENERATE_BITCODE_STATIC_LIBRARIES ON
     CACHE BOOL "")
-  message(STATUS "Using Emscripten toolchain")
 endif()
+
 
 project(skirt LANGUAGES CXX)
 
@@ -78,7 +79,6 @@ set(RC_ENABLE_GTEST ON CACHE BOOL "" FORCE)
 set(RC_ENABLE_GMOCK ON CACHE BOOL "" FORCE)
 add_subdirectory(3rdp/rapidcheck EXCLUDE_FROM_ALL)
 
-
 ###############################################################################
 # skirt
 
@@ -118,7 +118,8 @@ target_link_libraries(skirt_tests gtest rapidcheck_gtest skirt)
 
 if (EMSCRIPTEN)
 set_target_properties(skirt_tests PROPERTIES
-  LINK_FLAGS "--pre-js ${CMAKE_CURRENT_SOURCE_DIR}/tools/skirt_tests_pre.js")
+  COMPILE_FLAGS "-s DISABLE_EXCEPTION_CATCHING=0"
+  LINK_FLAGS "-s DISABLE_EXCEPTION_CATCHING=0 --pre-js ${CMAKE_CURRENT_SOURCE_DIR}/tools/skirt_tests_pre.js")
 endif()
 
 
