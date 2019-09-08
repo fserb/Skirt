@@ -28,6 +28,11 @@ if (NOT CMAKE_BUILD_TYPE)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release")
 endif()
 
+include(TestBigEndian)
+TEST_BIG_ENDIAN(BIG_ENDIAN)
+
+configure_file(src/core/config.h.in config.h)
+
 ###############################################################################
 # glog
 
@@ -73,12 +78,18 @@ include_directories("src")
 file(GLOB_RECURSE SKIRT_SOURCE CONFIGURE_DEPENDS
   src/core/*
   src/loader/*
+  src/3rdp/*
   )
 list(REMOVE_ITEM SKIRT_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/core/main.cc")
 
 add_library(skirt STATIC ${SKIRT_SOURCE})
 
 target_link_libraries(skirt yaml-cpp glog)
+
+if(NOT EMSCRIPTEN)
+  target_link_libraries(skirt c++fs)
+endif()
+
 target_compile_features(skirt PRIVATE
   cxx_std_17
   cxx_constexpr

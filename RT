@@ -54,8 +54,6 @@ https://github.com/erichlof/THREE.js-PathTracing-Renderer/tree/gh-pages/js
 http://www.pbr-book.org/3ed-2018/contents.html
 http://www.realtimerendering.com/intersections.html
 
-http://netpbm.sourceforge.net/doc/pfm.html
-
 https://github.com/dannyfritz/awesome-ray-tracing
 
 Scenes
@@ -73,8 +71,6 @@ https://pbrt.org/fileformat-v3.html
 
 Libraries
 ---------
-OpenEXR loader/saver: https://github.com/syoyo/tinyexr
-PNG loader: https://lodev.org/lodepng/
 Random number generator: https://github.com/mattiasgustavsson/libs/blob/master/docs/rnd.md
 
 godbolt.org
