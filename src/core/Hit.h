@@ -3,6 +3,8 @@
 #include "core/Vector3.h"
 #include "core/skirt.h"
 
+class Element;
+
 namespace skirt {
 
 class Hit {
@@ -13,6 +15,7 @@ class Hit {
   float t;
   Vector3 p;
   Vector3 normal;
+  Element* element;
 };
 
 }  // namespace skirt

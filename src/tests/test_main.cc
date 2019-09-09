@@ -10,6 +10,9 @@
 using namespace skirt;
 
 int main(int argc, char** argv) {
+  FLAGS_logtostderr = 1;
+  FLAGS_v = 3;
+  google::InitGoogleLogging(argv[0]);
   setenv("RC_PARAMS",
          StringPrintf("max_success=1000 %s", getenv("RC_PARAMS")).c_str(),
          1);

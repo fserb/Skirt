@@ -35,8 +35,8 @@ DESIGN
 - Element do translation between ObjectSpace and WorldSpace.
 
 
-
 TODO
+
 - Remove Ray.minT ?
 - Allow Constructive Geometry elements?
 

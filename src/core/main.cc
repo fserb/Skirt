@@ -19,8 +19,8 @@
 namespace skirt {
 
 int mainShared(UNUSED int argc, UNUSED char** argv) {
-  // unique_ptr<Scene> scene(LoadSceneFile("example.scene"));
-  unique_ptr<Scene> scene(new Scene());
+  unique_ptr<Scene> scene(LoadSceneFile("data/example.scene"));
+  // unique_ptr<Scene> scene(new Scene());
 
   shared_ptr<Shape> sphere(new Sphere(0.5));
   shared_ptr<Element> obj(new Element(sphere));

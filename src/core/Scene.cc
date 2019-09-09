@@ -7,7 +7,7 @@ const Scene* Scene::Bake(unique_ptr<Scene>&& scene) {
 }
 
 Film Scene::MakeFilm() const {
-  Film f(200, 100, "test.png");
+  Film f(200, 100, "test.exr");
   return f;
 }
 

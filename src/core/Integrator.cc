@@ -9,7 +9,8 @@ namespace skirt {
 Vector3 SamplerIntegrator::color(const Ray& r) {
   optional<Hit> hit = scene->root->Intersect(r);
   if (hit) {
-    return Vector3(1, 0, 0);
+    Vector3 n = Normalize(hit->p - Vector3(0, 0, -1));
+    return 0.5 * (n + Vector3(1, 1, 1));
   }
 
   Vector3 ud = Normalize(r.direction);
