@@ -14,7 +14,11 @@ void assertSequence(const YAML::Node& node, size_t size);
 void assertNumber(const YAML::Node& node);
 void assertString(const YAML::Node& node);
 void assertMap(const YAML::Node& node);
+void assertInt(const YAML::Node& node);
 
 Vector3 parseVector3(const YAML::Node& node);
+float parseFloat(const YAML::Node& node);
+int parseInt(const YAML::Node& node);
+string parseString(const YAML::Node& node);
 
 }  // namespace skirt

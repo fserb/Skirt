@@ -11,7 +11,7 @@ Camera.perspective:
 Sampler.random:
   pixelsamples: 100
 
-Integrator.path:
+Integrator.sampler:
 
 Film.image:
   filename: "out.pmf"

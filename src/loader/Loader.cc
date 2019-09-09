@@ -11,7 +11,15 @@
 
 namespace skirt {
 
-unique_ptr<LoaderState> state;
+Description* desc;
+bool loaderError = false;
+
+void evalWorld(const YAML::Node& node) {
+  assertSequence(node);
+  for (const auto& child : node) {
+    const string key = lower(child.first.as<string>());
+  }
+}
 
 void evalLookAt(const YAML::Node& node) {
   assertMap(node);
@@ -19,9 +27,54 @@ void evalLookAt(const YAML::Node& node) {
     const string key = lower(child.first.as<string>());
 
     if (key == "from") {
-      state->lookAtFrom = parseVector3(child.second);
+      desc->lookAtFrom = parseVector3(child.second);
     } else if (key == "to") {
-      state->lookAtTo = parseVector3(child.second);
+      desc->lookAtTo = parseVector3(child.second);
+    } else {
+      error("Invalid key", child.first);
+    }
+  }
+}
+
+void evalCamera(const string& type, const YAML::Node& node) {
+  assertMap(node);
+  desc->cameraType = type;
+  for (const auto& child : node) {
+    const string key = lower(child.first.as<string>());
+
+    if (key == "fov") {
+      desc->cameraFOV = parseFloat(child.second);
+    } else if (key == "aperture") {
+      desc->cameraAperture = parseFloat(child.second);
+    } else if (key == "focusdistance") {
+      desc->cameraFocusDistance = parseFloat(child.second);
+    } else {
+      error("Invalid key", child.first);
+    }
+  }
+}
+
+void evalIntegrator(const string& type, const YAML::Node& node) {
+  desc->integratorType = type;
+  for (const auto& child : node) {
+    error("Invalid key", child.first);
+  }
+}
+
+void evalFilm(const string& type, const YAML::Node& node) {
+  assertMap(node);
+  desc->filmType = type;
+  for (const auto& child : node) {
+    const string key = lower(child.first.as<string>());
+
+    if (key == "filename") {
+      desc->filmFilename = parseString(child.second);
+    } else if (key == "resolution") {
+      assertSequence(child.second, 2);
+      assertInt(child.second[0]);
+      assertInt(child.second[1]);
+      desc->width = parseInt(child.second[0]);
+      desc->height = parseInt(child.second[1]);
     } else {
       error("Invalid key", child.first);
     }
@@ -29,8 +82,10 @@ void evalLookAt(const YAML::Node& node) {
 }
 
 unique_ptr<Scene> LoadScene(YAML::Node root) {
-  state.reset(new LoaderState());
-  state->scene.reset(new Scene());
+  unique_ptr<Scene> scene(new Scene());
+  scene->desc.reset(new Description);
+  desc = scene->desc.get();
+  loaderError = false;
 
   for (const auto& child : root) {
     assertString(child.first);
@@ -44,10 +99,23 @@ unique_ptr<Scene> LoadScene(YAML::Node root) {
 
     if (command == "lookat") {
       evalLookAt(child.second);
+    } else if (command == "camera") {
+      evalCamera(type, child.second);
+    } else if (command == "integrator") {
+      evalIntegrator(type, child.second);
+    } else if (command == "film") {
+      evalFilm(type, child.second);
+    } else if (command == "world") {
+      evalWorld(child.second);
     }
+
+    if (loaderError) break;
   }
 
-  return move(move(state->scene));
+  if (loaderError) return nullptr;
+
+  desc = nullptr;
+  return scene;
 }
 
 unique_ptr<Scene> LoadSceneFile(const string& filename) {
@@ -60,8 +128,8 @@ unique_ptr<Scene> LoadSceneString(const string& data) {
   return LoadScene(std::move(root));
 }
 
-unique_ptr<LoaderState> GetLoaderStateForTesting() {
-  return move(state);
+void LoadSceneError() {
+  loaderError = true;
 }
 
 }  // namespace skirt
